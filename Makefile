@@ -1,0 +1,3 @@
+.PHONY: test
+test: ## Run tests
+	go test -race -v ./...
