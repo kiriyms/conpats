@@ -2,14 +2,20 @@ package pool_test
 
 import (
 	"fmt"
+	"runtime"
 	"testing"
 	"time"
 
 	"github.com/kiriyms/conpats/pool"
 )
 
-func TestPool_Basic(t *testing.T) {
+func TestPool(t *testing.T) {
+
+	fmt.Println(runtime.NumGoroutine())
+
 	p := pool.New(5)
+
+	fmt.Println(runtime.NumGoroutine())
 
 	for i := range 10 {
 		p.Add(func() {
@@ -19,4 +25,13 @@ func TestPool_Basic(t *testing.T) {
 	}
 
 	p.Wait()
+
+	for i := range 10 {
+		p.Add(func() {
+			time.Sleep(2 * time.Second)
+			fmt.Printf("job-%d\n", i)
+		})
+	}
+
+	p.CloseAndWait()
 }

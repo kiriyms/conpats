@@ -7,19 +7,20 @@ type Job func()
 
 // Pool manages a fixed number of workers executing Jobs.
 type Pool struct {
-	limit int
-	jobs  chan Job
-	wg    sync.WaitGroup
+	limit  int
+	jobs   chan Job
+	active sync.WaitGroup
+	wg     sync.WaitGroup
 }
 
-// New creates a new Pool and immediately spawns 'limit' workers.
-func New(limit int) *Pool {
-	if limit <= 0 {
-		limit = 1
+// New creates a new Pool and immediately spawns all its workers.
+func New(workers int) *Pool {
+	if workers <= 0 {
+		workers = 1
 	}
 
 	p := &Pool{
-		limit: limit,
+		limit: workers,
 		jobs:  make(chan Job),
 	}
 
@@ -28,7 +29,9 @@ func New(limit int) *Pool {
 		go func() {
 			defer p.wg.Done()
 			for job := range p.jobs {
+				p.active.Add(1)
 				job()
+				p.active.Done()
 			}
 		}()
 	}
@@ -41,8 +44,12 @@ func (p *Pool) Add(job Job) {
 	p.jobs <- job
 }
 
-// Wait closes the job queue and blocks until all worker finish the jobs.
 func (p *Pool) Wait() {
+	p.active.Wait()
+}
+
+// CloseAndWait closes the job queue and blocks until all workers finish the jobs.
+func (p *Pool) CloseAndWait() {
 	// Signal no more jobs.
 	close(p.jobs)
 
