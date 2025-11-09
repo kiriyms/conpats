@@ -7,8 +7,9 @@ type Job func()
 
 // Pool manages a fixed number of workers executing Jobs.
 type Pool struct {
-	limit  int
-	jobs   chan Job
+	limit int
+	jobs  chan Job
+
 	active sync.WaitGroup
 	wg     sync.WaitGroup
 }
@@ -39,8 +40,8 @@ func New(workers int) *Pool {
 	return p
 }
 
-// Add submits a job to the pool.
-func (p *Pool) Add(job Job) {
+// Go submits a job to the pool.
+func (p *Pool) Go(job Job) {
 	p.jobs <- job
 }
 

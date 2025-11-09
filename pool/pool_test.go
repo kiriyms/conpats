@@ -15,7 +15,7 @@ func TestPool(t *testing.T) {
 		var completed atomic.Int64
 
 		for i := 0; i < jobCount; i++ {
-			p.Add(func() {
+			p.Go(func() {
 				time.Sleep(2 * time.Millisecond)
 				completed.Add(1)
 			})
@@ -34,7 +34,7 @@ func TestPool(t *testing.T) {
 
 		var completedPartA atomic.Int64
 		for i := 0; i < jobCount; i++ {
-			p.Add(func() {
+			p.Go(func() {
 				time.Sleep(2 * time.Millisecond)
 				completedTotal.Add(1)
 				completedPartA.Add(1)
@@ -51,7 +51,7 @@ func TestPool(t *testing.T) {
 
 		var completedPartB atomic.Int64
 		for i := 0; i < jobCount; i++ {
-			p.Add(func() {
+			p.Go(func() {
 				time.Sleep(2 * time.Millisecond)
 				completedTotal.Add(1)
 				completedPartB.Add(1)
@@ -68,5 +68,11 @@ func TestPool(t *testing.T) {
 		if completedPartB.Load()+completedPartA.Load() != completedTotal.Load() {
 			t.Errorf("Expected sum of Part A and Part B to equal to total. Parts A + B: %d, Total: %d", completedPartA.Load()+completedPartB.Load(), completedTotal.Load())
 		}
+	})
+
+	t.Run("test", func(t *testing.T) {
+		p := pool.New(3)
+		p.CloseAndWait()
+		p.Go(func() { time.Sleep(2 * time.Millisecond) })
 	})
 }
