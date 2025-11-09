@@ -74,7 +74,7 @@ func TestPool(t *testing.T) {
 		}
 	})
 
-	t.Run("returns error after closing", func(t *testing.T) {
+	t.Run("returns error after CloseAndWait", func(t *testing.T) {
 		t.Parallel()
 
 		p := pool.New(3)
@@ -90,5 +90,25 @@ func TestPool(t *testing.T) {
 		if err == nil {
 			t.Errorf("Expected error on .Go() because Pool is closed")
 		}
+	})
+
+	t.Run("does not error after Wait", func(t *testing.T) {
+		t.Parallel()
+
+		p := pool.New(3)
+		err := p.Go(func() { time.Sleep(2 * time.Millisecond) })
+
+		if err != nil {
+			t.Errorf("Should not error on .Go() if the Pool is not closed yet")
+		}
+
+		p.Wait()
+		err = p.Go(func() { time.Sleep(2 * time.Millisecond) })
+
+		if err != nil {
+			t.Errorf("Should not error on .Go() after a regular .Wait()")
+		}
+
+		p.CloseAndWait()
 	})
 }
