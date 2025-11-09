@@ -27,7 +27,7 @@ func TestPool(t *testing.T) {
 		}
 	})
 
-	t.Run("is reuseable", func(t *testing.T) {
+	t.Run("is reuseable after Wait", func(t *testing.T) {
 		p := pool.New(7)
 		jobCount := 50
 		var completedTotal atomic.Int64
