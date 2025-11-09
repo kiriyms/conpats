@@ -10,6 +10,8 @@ import (
 
 func TestPool(t *testing.T) {
 	t.Run("basic", func(t *testing.T) {
+		t.Parallel()
+
 		p := pool.New(7)
 		jobCount := 50
 		var completed atomic.Int64
@@ -28,6 +30,8 @@ func TestPool(t *testing.T) {
 	})
 
 	t.Run("is reuseable after Wait", func(t *testing.T) {
+		t.Parallel()
+
 		p := pool.New(7)
 		jobCount := 50
 		var completedTotal atomic.Int64
@@ -70,9 +74,21 @@ func TestPool(t *testing.T) {
 		}
 	})
 
-	t.Run("test", func(t *testing.T) {
+	t.Run("returns error after closing", func(t *testing.T) {
+		t.Parallel()
+
 		p := pool.New(3)
+		err := p.Go(func() { time.Sleep(2 * time.Millisecond) })
+
+		if err != nil {
+			t.Errorf("Should not error on .Go() if the Pool is not closed yet")
+		}
+
 		p.CloseAndWait()
-		p.Go(func() { time.Sleep(2 * time.Millisecond) })
+		err = p.Go(func() { time.Sleep(2 * time.Millisecond) })
+
+		if err == nil {
+			t.Errorf("Expected error on .Go() because Pool is closed")
+		}
 	})
 }
