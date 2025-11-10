@@ -1,7 +1,6 @@
 package pool
 
 import (
-	"errors"
 	"sync"
 )
 
@@ -50,16 +49,16 @@ func New(workers int) *Pool {
 // Go submits a job to the pool.
 //
 // If a job is submitted after CloseAndWait() has been called, it will be dropped silently.
-func (p *Pool) Go(job Job) error {
+func (p *Pool) Go(job Job) bool {
 	p.mu.RLock()
 	closed := p.closed
 	p.mu.RUnlock()
 
 	if closed {
-		return errors.New("Pool already closed")
+		return false
 	}
 	p.jobs <- job
-	return nil
+	return true
 }
 
 func (p *Pool) Wait() {
