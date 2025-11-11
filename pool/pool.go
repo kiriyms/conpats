@@ -16,7 +16,7 @@ type Pool struct {
 	wg       sync.WaitGroup
 
 	once   sync.Once
-	mu     sync.RWMutex
+	mu     sync.Mutex
 	closed bool
 }
 
@@ -50,9 +50,9 @@ func New(workers int) *Pool {
 //
 // If a job is submitted after CloseAndWait() has been called, it will be dropped silently.
 func (p *Pool) Go(job Job) bool {
-	p.mu.RLock()
+	p.mu.Lock()
 	closed := p.closed
-	p.mu.RUnlock()
+	p.mu.Unlock()
 
 	if closed {
 		return false
