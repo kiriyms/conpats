@@ -8,7 +8,7 @@ import (
 type ErrorJob func() error
 
 type ErrorPool struct {
-	pool Pool
+	pool *Pool
 
 	mu   sync.Mutex
 	errs []error
