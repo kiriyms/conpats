@@ -79,3 +79,9 @@ func (p *Pool) CloseAndWait() {
 	// Wait for all workers to finish.
 	p.wg.Wait()
 }
+
+func (p *Pool) WithErrors() *ErrorPool {
+	return &ErrorPool{
+		pool: p,
+	}
+}
