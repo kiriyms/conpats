@@ -36,9 +36,7 @@ func New(workers int) *Pool {
 		go func() {
 			defer p.wg.Done()
 			for job := range p.jobs {
-				p.activeWg.Add(1)
 				job()
-				p.activeWg.Done()
 			}
 		}()
 	}
@@ -57,7 +55,12 @@ func (p *Pool) Go(job Job) bool {
 	if closed {
 		return false
 	}
-	p.jobs <- job
+
+	p.activeWg.Add(1)
+	p.jobs <- func() {
+		defer p.activeWg.Done()
+		job()
+	}
 	return true
 }
 
