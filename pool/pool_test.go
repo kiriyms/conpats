@@ -9,6 +9,8 @@ import (
 )
 
 func TestPool(t *testing.T) {
+	t.Parallel()
+
 	t.Run("basic", func(t *testing.T) {
 		t.Parallel()
 

@@ -11,7 +11,9 @@ import (
 )
 
 func TestErrorPool(t *testing.T) {
-	t.Run("returns nil if no errors", func(t *testing.T) {
+	t.Parallel()
+	
+	t.Run("returns 10 errors", func(t *testing.T) {
 		t.Parallel()
 
 		p := pool.New(7).WithErrors()
