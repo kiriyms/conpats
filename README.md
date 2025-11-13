@@ -26,6 +26,8 @@ Main goals of this package are:
 
 ### Example
 
+Pool:
+
 ```go
 func main() {
 	p := pool.New(5)
@@ -41,6 +43,40 @@ func main() {
 		})
 	}
 	p.CloseAndWait()
+}
+```
+
+Error Pool:
+
+```go
+func main() {
+    p := pool.New(7).WithErrors()
+    jobCount := 50
+
+    for i := 0; i < 50; i++ {
+        p.Go(func() error {
+            time.Sleep(2 * time.Millisecond)
+            return nil
+        })
+    }
+
+    err := p.Wait()
+    fmt.Println(err) // err == nil
+
+    for i := 0; i < jobCount; i++ {
+        p.Go(func() error {
+            time.Sleep(2 * time.Millisecond)
+
+            if i%5 == 0 {
+                errored.Add(1)
+                return fmt.Errorf("err-%d", i)
+            }
+            return nil
+        })
+    }
+
+    err = p.CloseAndWait()
+    fmt.Println(err) // err == "err-0 err-5 err-10 ..."
 }
 ```
 
