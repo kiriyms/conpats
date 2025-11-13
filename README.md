@@ -14,6 +14,7 @@ Main goals of this package are:
 1. Make concurrency easier and reduce boilerplate
 2. Provide a variety of common concurrency patterns in one place
 3. Structurize concurrency to improve control
+4. Avoid any third-party dependencies
 
 ## Workflow
 
@@ -22,6 +23,26 @@ Main goals of this package are:
 - Add new jobs to your Pools using `p.Go()`.
 - Use `p.Wait()` to block until all given jobs finish. After `p.Wait()`, you can reuse the Pool and add jobs again.
 - Use `p.CloseAndWait()` to close the jobs channel and block until all given jobs finish.
+
+### Example
+
+```go
+func main() {
+	p := pool.New(5)
+	for i := range 50 {
+		p.Go(func() {
+			fmt.Printf("Hello - %d\n", i)
+		})
+	}
+	p.Wait()
+	for i := range 10 {
+		p.Go(func() {
+			fmt.Printf("Bye - %d\n", i)
+		})
+	}
+	p.CloseAndWait()
+}
+```
 
 ## Characteristics
 
@@ -40,3 +61,4 @@ Macro-goals are:
 
 1. Flesh-out Pool and Error Pool, add Lazy Pool
 2. Add more concurrency patters, such as Fan-Out/Fan-In, Pub-Sub and others.
+3. Add monadic concurrency support for Pools
