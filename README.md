@@ -6,6 +6,7 @@
 
 - Use `pool.Pool` if you want a reusable Worker Pool.
 - Use `pool.ErrorPool` if your Worker Pool tasks return errors.
+- Use `pool.ContextPool` if your Worker Pool tasks use context.
 
 ## Goals
 
@@ -20,6 +21,7 @@ Main goals of this package are:
 
 - Both Pools start with `pool.New()`.
 - To convert a regular Pool to an Error Pool, use `pool.New().WithErrors()`.
+- To convert an Error Pool to a Context Pool, use `pool.New().WithErrors().WithContext()`.
 - Add new jobs to your Pools using `p.Go()`.
 - Use `p.Wait()` to block until all given jobs finish. After `p.Wait()`, you can reuse the Pool and add jobs again.
 - Use `p.CloseAndWait()` to close the jobs channel and block until all given jobs finish.
