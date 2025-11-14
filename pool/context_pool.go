@@ -16,3 +16,12 @@ func (p *ContextPool) Go(job ContextJob) bool {
 		return job(p.ctx)
 	})
 }
+
+func (p *ContextPool) Wait() error {
+	return p.errorPool.Wait()
+}
+
+func (p *ContextPool) CloseAndWait() error {
+	defer p.cancel()
+	return p.errorPool.CloseAndWait()
+}
