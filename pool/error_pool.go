@@ -1,6 +1,7 @@
 package pool
 
 import (
+	"context"
 	"errors"
 	"sync"
 )
@@ -28,6 +29,13 @@ func (p *ErrorPool) Wait() error {
 func (p *ErrorPool) CloseAndWait() error {
 	p.pool.CloseAndWait()
 	return p.getErrs()
+}
+
+func (p *ErrorPool) WithContext(ctx context.Context) *ContextPool {
+	return &ContextPool{
+		errorPool: p,
+		ctx:       ctx,
+	}
 }
 
 func (p *ErrorPool) getErrs() error {
