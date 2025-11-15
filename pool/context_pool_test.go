@@ -66,4 +66,37 @@ func TestContextPool(t *testing.T) {
 			t.Errorf("Errors count mismatch; expected: %d, collected: %d", errored.Load(), len(errs))
 		}
 	})
+
+	t.Run("returns nil if no errors", func(t *testing.T) {
+		t.Parallel()
+
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+
+		p := pool.New(7).WithErrors().WithContext(ctx)
+
+		jobCount := 30
+		var completed atomic.Int64
+
+		for i := 0; i < jobCount; i++ {
+			p.Go(func(c context.Context) error {
+				if c == nil {
+					t.Fatalf("Expected context to be passed")
+				}
+
+				completed.Add(1)
+				return nil
+			})
+		}
+
+		err := p.CloseAndWait()
+
+		if completed.Load() != int64(jobCount) {
+			t.Errorf("Jobs expected: %d, got: %d", jobCount, completed.Load())
+		}
+
+		if err != nil {
+			t.Errorf("Expected error to be nil, got: %v", err)
+		}
+	})
 }
