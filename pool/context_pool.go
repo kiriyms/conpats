@@ -22,6 +22,8 @@ func (p *ContextPool) Wait() error {
 }
 
 func (p *ContextPool) CloseAndWait() error {
-	defer p.cancel()
+	if p.cancel != nil {
+		defer p.cancel()
+	}
 	return p.errorPool.CloseAndWait()
 }
