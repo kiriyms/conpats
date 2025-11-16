@@ -32,9 +32,12 @@ func (p *ErrorPool) CloseAndWait() error {
 }
 
 func (p *ErrorPool) WithContext(ctx context.Context) *ContextPool {
+	cctx, cancel := context.WithCancel(ctx)
+
 	return &ContextPool{
 		errorPool: p,
-		ctx:       ctx,
+		ctx:       cctx,
+		cancel:    cancel,
 	}
 }
 

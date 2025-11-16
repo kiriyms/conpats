@@ -1,6 +1,9 @@
 package pool
 
-import "context"
+import (
+	"context"
+	"errors"
+)
 
 type ContextJob func(ctx context.Context) error
 
@@ -22,8 +25,15 @@ func (p *ContextPool) Wait() error {
 }
 
 func (p *ContextPool) CloseAndWait() error {
-	if p.cancel != nil {
-		defer p.cancel()
-	}
-	return p.errorPool.CloseAndWait()
+    if p.cancel != nil {
+        p.cancel()
+    }
+
+    err := p.errorPool.CloseAndWait()
+
+    if errors.Is(err, context.Canceled) {
+        return context.Canceled
+    }
+
+    return err
 }

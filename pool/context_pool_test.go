@@ -126,11 +126,10 @@ func TestContextPool(t *testing.T) {
 		}
 	})
 
-	t.Run("CloseAndWait triggers internal cancel", func(t *testing.T) {
+	t.Run("CloseAndWait triggers internal cancel before waiting", func(t *testing.T) {
 		t.Parallel()
 	
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
+		ctx := context.Background()
 	
 		p := pool.New(2).WithErrors().WithContext(ctx)
 	
@@ -139,17 +138,17 @@ func TestContextPool(t *testing.T) {
 		p.Go(func(c context.Context) error {
 			<-c.Done()
 			seenCancel.Store(true)
-			return nil
+			return c.Err()
 		})
 	
 		err := p.CloseAndWait()
 	
-		if err != nil && err != context.Canceled {
-			t.Errorf("Unexpected error: %v", err)
+		if !seenCancel.Load() {
+			t.Fatalf("Expected job to observe context cancellation triggered by CloseAndWait")
 		}
 	
-		if !seenCancel.Load() {
-			t.Fatalf("Expected context cancellation to propagate to job")
+		if err != nil && err != context.Canceled {
+			t.Fatalf("Unexpected error returned: %v", err)
 		}
 	})
 }
