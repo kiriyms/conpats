@@ -2,6 +2,7 @@ package pool_test
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"sync/atomic"
@@ -128,27 +129,55 @@ func TestContextPool(t *testing.T) {
 
 	t.Run("CloseAndWait triggers internal cancel before waiting", func(t *testing.T) {
 		t.Parallel()
-	
+
 		ctx := context.Background()
-	
+
 		p := pool.New(2).WithErrors().WithContext(ctx)
-	
+
 		seenCancel := atomic.Bool{}
-	
+
 		p.Go(func(c context.Context) error {
 			<-c.Done()
 			seenCancel.Store(true)
 			return c.Err()
 		})
-	
+
 		err := p.CloseAndWait()
-	
+
 		if !seenCancel.Load() {
 			t.Fatalf("Expected job to observe context cancellation triggered by CloseAndWait")
 		}
-	
+
 		if err != nil && err != context.Canceled {
 			t.Fatalf("Unexpected error returned: %v", err)
+		}
+	})
+
+	t.Run("Jobs respect timeout context", func(t *testing.T) {
+		t.Parallel()
+
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+		defer cancel()
+
+		p := pool.New(2).WithErrors().WithContext(ctx)
+
+		sawTimeout := atomic.Bool{}
+		p.Go(func(c context.Context) error {
+			<-c.Done()
+			if errors.Is(c.Err(), context.DeadlineExceeded) {
+				sawTimeout.Store(true)
+			}
+			return c.Err()
+		})
+
+		err := p.CloseAndWait()
+
+		if !sawTimeout.Load() {
+			t.Fatalf("Expected job to observe context timeout")
+		}
+
+		if err == nil || !errors.Is(err, context.DeadlineExceeded) {
+			t.Fatalf("Expected context.DeadlineExceeded error, got: %v", err)
 		}
 	})
 }
