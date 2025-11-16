@@ -99,4 +99,57 @@ func TestContextPool(t *testing.T) {
 			t.Errorf("Expected error to be nil, got: %v", err)
 		}
 	})
+
+	t.Run("jobs see cancellation when parent context is cancelled", func(t *testing.T) {
+		t.Parallel()
+
+		ctx, cancel := context.WithCancel(context.Background())
+		p := pool.New(4).WithErrors().WithContext(ctx)
+
+		sawCancel := atomic.Int64{}
+
+		p.Go(func(c context.Context) error {
+			cancel()
+			<-c.Done()
+			sawCancel.Add(1)
+			return c.Err()
+		})
+
+		err := p.CloseAndWait()
+
+		if sawCancel.Load() != 1 {
+			t.Fatalf("Expected job to observe context cancellation")
+		}
+
+		if err == nil || err.Error() != context.Canceled.Error() {
+			t.Fatalf("Expected context.Canceled error, got: %v", err)
+		}
+	})
+
+	t.Run("CloseAndWait triggers internal cancel", func(t *testing.T) {
+		t.Parallel()
+	
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+	
+		p := pool.New(2).WithErrors().WithContext(ctx)
+	
+		seenCancel := atomic.Bool{}
+	
+		p.Go(func(c context.Context) error {
+			<-c.Done()
+			seenCancel.Store(true)
+			return nil
+		})
+	
+		err := p.CloseAndWait()
+	
+		if err != nil && err != context.Canceled {
+			t.Errorf("Unexpected error: %v", err)
+		}
+	
+		if !seenCancel.Load() {
+			t.Fatalf("Expected context cancellation to propagate to job")
+		}
+	})
 }
