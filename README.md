@@ -100,3 +100,7 @@ Macro-goals are:
 1. Flesh-out Pool and Error Pool, add Lazy Pool
 2. Add more concurrency patters, such as Fan-Out/Fan-In, Pub-Sub and others.
 3. Add monadic concurrency support for Pools
+
+### TODO
+
+1. Examples - Load Balancer utilizing WorkerPool
