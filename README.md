@@ -104,3 +104,4 @@ Macro-goals are:
 ### TODO
 
 1. Examples - Load Balancer utilizing WorkerPool
+2. Monad Result Type
