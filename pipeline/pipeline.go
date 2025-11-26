@@ -1,10 +1,19 @@
 package pipeline
 
-import "context"
+import (
+	"context"
+	"sync"
+)
 
-type StageFunc[I any, O any] func(context.Context, I) (O, error)
+// StageFunc processes input items and sends results to the output channel.
+// It should return when ctx is cancelled or input channel is closed.
+type StageFunc[In, Out any] func(ctx context.Context, in <-chan In, out chan<- Out)
 
-type Pipeline[I any, O any] interface {
-	Stage(workers int, fn StageFunc[I, O]) Pipeline[I, O]
-	Run(ctx context.Context, input <-chan I) (<-chan O, <-chan error)
+// Pipeline manages a series of processing stages connected by channels.
+// It handles goroutine lifecycle, channel creation, and graceful shutdown.
+type Pipeline[T any] struct {
+	ctx    context.Context
+	cancel context.CancelFunc
+	wg     sync.WaitGroup
+	input  chan T
 }
