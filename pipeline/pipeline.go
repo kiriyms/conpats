@@ -17,3 +17,21 @@ type Pipeline[T any] struct {
 	wg     sync.WaitGroup
 	input  chan T
 }
+
+// New creates a pipeline with the given context and buffer size for channels.
+// bufferSize controls how many items can be queued between stages.
+func New[T any](ctx context.Context, bufferSize int) *Pipeline[T] {
+	// Create a cancellable context so we can shut down all stages
+	ctx, cancel := context.WithCancel(ctx)
+
+	return &Pipeline[T]{
+		ctx:    ctx,
+		cancel: cancel,
+		input:  make(chan T, bufferSize),
+	}
+}
+
+// Input returns the channel where you send data into the pipeline.
+func (p *Pipeline[T]) Input() chan<- T {
+	return p.input
+}
