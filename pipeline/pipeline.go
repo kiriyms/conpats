@@ -85,3 +85,9 @@ func (p *Pipeline[T]) Collect() []T {
 	
 	return results
 }
+
+// Cancel stops all pipeline stages gracefully.
+// Call this when you're done or want to abort processing.
+func (p *Pipeline[T]) Cancel() {
+	p.cancel()
+}
