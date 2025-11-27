@@ -91,3 +91,8 @@ func (p *Pipeline[T]) Collect() []T {
 func (p *Pipeline[T]) Cancel() {
 	p.cancel()
 }
+
+// Wait blocks until all pipeline stages have finished processing.
+func (p *Pipeline[T]) Wait() {
+	p.wg.Wait()
+}
