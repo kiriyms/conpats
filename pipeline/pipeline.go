@@ -72,3 +72,16 @@ func AddStage[In, Out any](
 		wg:     sync.WaitGroup{}, // New WaitGroup for next stage
 	}
 }
+
+// Collect gathers all results from the pipeline into a slice.
+// This is a convenience function for simple use cases.
+func (p *Pipeline[T]) Collect() []T {
+	var results []T
+	
+	// Read all items from the final stage's output
+	for item := range p.input {
+		results = append(results, item)
+	}
+	
+	return results
+}
