@@ -104,6 +104,5 @@ Macro-goals are:
 ### TODO
 
 1. Examples - Load Balancer utilizing WorkerPool
-2. Monad Result Type
-3. Make patterns modular - one using another
-4. If possible, make patterns compatible with implementations from other packages
+2. Make patterns modular - one using another
+3. If possible, make patterns compatible with implementations from other packages
