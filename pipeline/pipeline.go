@@ -77,12 +77,12 @@ func AddStage[In, Out any](
 // This is a convenience function for simple use cases.
 func (p *Pipeline[T]) Collect() []T {
 	var results []T
-	
+
 	// Read all items from the final stage's output
 	for item := range p.input {
 		results = append(results, item)
 	}
-	
+
 	return results
 }
 
@@ -101,7 +101,7 @@ func (p *Pipeline[T]) Wait() {
 // This is useful for testing or when your data is already in memory.
 func Source[T any](ctx context.Context, bufferSize int, items []T) *Pipeline[T] {
 	p := New[T](ctx, bufferSize)
-	
+
 	// Launch goroutine to feed items into the pipeline
 	go func() {
 		defer close(p.input)
@@ -114,6 +114,37 @@ func Source[T any](ctx context.Context, bufferSize int, items []T) *Pipeline[T] 
 			}
 		}
 	}()
-	
+
 	return p
+}
+
+// Merge combines multiple pipelines into one (fan-in pattern).
+// Useful when you have parallel processing paths that need to converge.
+func Merge[T any](ctx context.Context, bufferSize int, pipelines ...*Pipeline[T]) *Pipeline[T] {
+	merged := New[T](ctx, bufferSize)
+	var wg sync.WaitGroup
+
+	// For each input pipeline, copy its output to merged pipeline
+	for _, p := range pipelines {
+		wg.Add(1)
+		go func(input <-chan T) {
+			defer wg.Done()
+			for item := range input {
+				select {
+				case <-ctx.Done():
+					return
+				case merged.input <- item:
+					// Item merged successfully
+				}
+			}
+		}(p.input)
+	}
+
+	// Close merged input when all sources are exhausted
+	go func() {
+		wg.Wait()
+		close(merged.input)
+	}()
+
+	return merged
 }
