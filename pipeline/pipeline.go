@@ -96,3 +96,24 @@ func (p *Pipeline[T]) Cancel() {
 func (p *Pipeline[T]) Wait() {
 	p.wg.Wait()
 }
+
+// Source creates a pipeline from a slice of items.
+// This is useful for testing or when your data is already in memory.
+func Source[T any](ctx context.Context, bufferSize int, items []T) *Pipeline[T] {
+	p := New[T](ctx, bufferSize)
+	
+	// Launch goroutine to feed items into the pipeline
+	go func() {
+		defer close(p.input)
+		for _, item := range items {
+			select {
+			case <-ctx.Done():
+				return // Stop if context is cancelled
+			case p.input <- item:
+				// Item sent successfully
+			}
+		}
+	}()
+	
+	return p
+}
