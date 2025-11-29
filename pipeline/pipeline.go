@@ -7,3 +7,10 @@ type StageFunc func(int) int
 type Pipeline struct {
 }
 
+func NewFromSlice(data []int) *Pipeline {
+	return &Pipeline{}
+}
+
+func NewFromChannel(data <-chan int) *Pipeline {
+	return &Pipeline{}
+}
