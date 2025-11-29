@@ -1,150 +1,28 @@
 package pipeline
 
-import (
-	"context"
-	"sync"
-)
-
-// StageFunc processes input items and sends results to the output channel.
-// It should return when ctx is cancelled or input channel is closed.
-type StageFunc[In, Out any] func(ctx context.Context, in <-chan In, out chan<- Out)
+type StageFunc func(int) int
 
 // Pipeline manages a series of processing stages connected by channels.
 // It handles goroutine lifecycle, channel creation, and graceful shutdown.
-type Pipeline[T any] struct {
-	ctx    context.Context
-	cancel context.CancelFunc
-	wg     sync.WaitGroup
-	input  chan T
+type Pipeline struct {
+	genOut <-chan int
 }
 
-// New creates a pipeline with the given context and buffer size for channels.
-// bufferSize controls how many items can be queued between stages.
-func New[T any](ctx context.Context, bufferSize int) *Pipeline[T] {
-	// Create a cancellable context so we can shut down all stages
-	ctx, cancel := context.WithCancel(ctx)
+// NewFromSlice creates a Pipeline from a slice of integers.
+func NewFromSlice(data []int) *Pipeline {
+	out := make(chan int)
 
-	return &Pipeline[T]{
-		ctx:    ctx,
-		cancel: cancel,
-		input:  make(chan T, bufferSize),
-	}
-}
-
-// Input returns the channel where you send data into the pipeline.
-func (p *Pipeline[T]) Input() chan<- T {
-	return p.input
-}
-
-// AddStage adds a processing stage to the pipeline.
-// workers controls how many goroutines run this stage concurrently (fan-out).
-// Returns the output channel from this stage.
-func AddStage[In, Out any](
-	p *Pipeline[In],
-	workers int,
-	bufferSize int,
-	fn StageFunc[In, Out],
-) *Pipeline[Out] {
-	// Create output channel for this stage
-	output := make(chan Out, bufferSize)
-
-	// Launch worker goroutines for this stage
-	for i := 0; i < workers; i++ {
-		p.wg.Add(1)
-		go func() {
-			defer p.wg.Done()
-			// Each worker processes items from input and sends to output
-			fn(p.ctx, p.input, output)
-		}()
-	}
-
-	// Close output channel when all workers finish
 	go func() {
-		p.wg.Wait()
-		close(output)
-	}()
-
-	// Return new pipeline with this stage's output as input to next stage
-	return &Pipeline[Out]{
-		ctx:    p.ctx,
-		cancel: p.cancel,
-		input:  output,
-		wg:     sync.WaitGroup{}, // New WaitGroup for next stage
-	}
-}
-
-// Collect gathers all results from the pipeline into a slice.
-// This is a convenience function for simple use cases.
-func (p *Pipeline[T]) Collect() []T {
-	var results []T
-
-	// Read all items from the final stage's output
-	for item := range p.input {
-		results = append(results, item)
-	}
-
-	return results
-}
-
-// Cancel stops all pipeline stages gracefully.
-// Call this when you're done or want to abort processing.
-func (p *Pipeline[T]) Cancel() {
-	p.cancel()
-}
-
-// Wait blocks until all pipeline stages have finished processing.
-func (p *Pipeline[T]) Wait() {
-	p.wg.Wait()
-}
-
-// Source creates a pipeline from a slice of items.
-// This is useful for testing or when your data is already in memory.
-func Source[T any](ctx context.Context, bufferSize int, items []T) *Pipeline[T] {
-	p := New[T](ctx, bufferSize)
-
-	// Launch goroutine to feed items into the pipeline
-	go func() {
-		defer close(p.input)
-		for _, item := range items {
-			select {
-			case <-ctx.Done():
-				return // Stop if context is cancelled
-			case p.input <- item:
-				// Item sent successfully
-			}
+		defer close(out)
+		for _, v := range data {
+			out <- v
 		}
 	}()
 
-	return p
+	return &Pipeline{genOut: out}
 }
 
-// Merge combines multiple pipelines into one (fan-in pattern).
-// Useful when you have parallel processing paths that need to converge.
-func Merge[T any](ctx context.Context, bufferSize int, pipelines ...*Pipeline[T]) *Pipeline[T] {
-	merged := New[T](ctx, bufferSize)
-	var wg sync.WaitGroup
-
-	// For each input pipeline, copy its output to merged pipeline
-	for _, p := range pipelines {
-		wg.Add(1)
-		go func(input <-chan T) {
-			defer wg.Done()
-			for item := range input {
-				select {
-				case <-ctx.Done():
-					return
-				case merged.input <- item:
-					// Item merged successfully
-				}
-			}
-		}(p.input)
-	}
-
-	// Close merged input when all sources are exhausted
-	go func() {
-		wg.Wait()
-		close(merged.input)
-	}()
-
-	return merged
+// NewFromChannel creates a Pipeline from an existing channel of integers.
+func NewFromChannel(data <-chan int) *Pipeline {
+	return &Pipeline{genOut: data}
 }
