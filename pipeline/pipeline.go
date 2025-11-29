@@ -8,6 +8,7 @@ type Pipeline struct {
 	genOut <-chan int
 }
 
+// NewFromSlice creates a Pipeline from a slice of integers.
 func NewFromSlice(data []int) *Pipeline {
 	out := make(chan int)
 
@@ -21,6 +22,7 @@ func NewFromSlice(data []int) *Pipeline {
 	return &Pipeline{genOut: out}
 }
 
+// NewFromChannel creates a Pipeline from an existing channel of integers.
 func NewFromChannel(data <-chan int) *Pipeline {
 	return &Pipeline{genOut: data}
 }
