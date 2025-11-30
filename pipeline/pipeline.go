@@ -6,6 +6,8 @@ type StageFunc func(int) int
 // It handles goroutine lifecycle, channel creation, and graceful shutdown.
 type Pipeline struct {
 	genOut <-chan int
+	stages []StageFunc
+	chans  []<-chan int
 }
 
 // NewFromSlice creates a Pipeline from a slice of integers.
@@ -19,10 +21,40 @@ func NewFromSlice(data []int) *Pipeline {
 		}
 	}()
 
-	return &Pipeline{genOut: out}
+	return &Pipeline{genOut: out, stages: make([]StageFunc, 0)}
 }
 
 // NewFromChannel creates a Pipeline from an existing channel of integers.
 func NewFromChannel(data <-chan int) *Pipeline {
-	return &Pipeline{genOut: data}
+	return &Pipeline{genOut: data, stages: make([]StageFunc, 0)}
+}
+
+func (p *Pipeline) AddStage(stage StageFunc) {
+	p.stages = append(p.stages, stage)
+}
+
+func (p *Pipeline) Run() <-chan int {
+	in := p.genOut
+
+	if len(p.stages) == 0 {
+		return in
+	}
+
+	p.chans = make([]<-chan int, len(p.stages)+1)
+	p.chans[0] = p.genOut
+
+	for i, stage := range p.stages {
+		out := make(chan int)
+
+		go func() {
+			defer close(out)
+			for v := range p.chans[i] {
+				out <- stage(v)
+			}
+		}()
+
+		p.chans[i+1] = out
+	}
+
+	return p.chans[len(p.chans)-1]
 }
