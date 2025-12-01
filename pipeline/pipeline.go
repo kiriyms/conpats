@@ -65,3 +65,7 @@ func (p *Pipeline) Run() <-chan int {
 
 	return p.chans[len(p.chans)-1]
 }
+
+func (p *Pipeline) ConfigurePool(pool WorkerPool) {
+	p.pool = pool
+}
