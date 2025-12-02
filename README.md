@@ -8,6 +8,8 @@
 - Use `pool.ErrorPool` if your Worker Pool tasks return errors.
 - Use `pool.ContextPool` if your Worker Pool tasks use context.
 
+- Use `pipeline.Pipeline` if you want to process several functions in sequence using concurrency
+
 ## Goals
 
 Main goals of this package are:
@@ -18,6 +20,8 @@ Main goals of this package are:
 4. Avoid any third-party dependencies
 
 ## Workflow
+
+### Pool
 
 - Both Pools start with `pool.New()`.
 - To convert a regular Pool to an Error Pool, use `pool.New().WithErrors()`.
@@ -79,6 +83,36 @@ func main() {
 
     err = p.CloseAndWait()
     fmt.Println(err) // err == "err-0 err-5 err-10 ..."
+}
+```
+
+### Pipeline
+
+- Start by creating a new Pipeline from either a slice `pipeline.NewFromSlice()` or a channel `pipeline.NewFromChannel()`.
+- Set up the stages of the pipeline by passing you own functions to `pipeline.AddStage()`.
+- Run the pipeline using `pipeline.Run()`. This returns a channel of final output values, which you can read or pass to another pipeline with `pipeline.NewFromChannel()`.
+
+### Example
+
+Pipeline:
+
+```go
+func main() {
+	pipe := NewFromSlice([]int{1, 2, 3, 4, 5})
+	pipe.AddStage(func(i int) int {
+		return i * 2
+	})
+	pipe.AddStage(func(i int) int {
+		return i + 1
+	})
+	out := pipe.Run()
+
+	res := make([]int, 0)
+	for v := range out {
+		res = append(res, v)
+	}
+
+	fmt.Println(res) // res == [3 5 7 9 11]
 }
 ```
 
