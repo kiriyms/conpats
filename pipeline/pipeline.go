@@ -6,6 +6,7 @@ type StageFunc[T any] func(T) T
 
 type WorkerPool interface {
 	Go(pool.Job) bool
+	CloseAndWait()
 }
 
 // Pipeline manages a series of processing stages connected by channels.
@@ -63,6 +64,10 @@ func (p *Pipeline[T]) Run() <-chan T {
 	}
 
 	return p.chans[len(p.chans)-1]
+}
+
+func (p *Pipeline[T]) CloseAndWait() {
+	p.pool.CloseAndWait()
 }
 
 func (p *Pipeline[T]) ConfigurePool(pool WorkerPool) {
