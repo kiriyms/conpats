@@ -1,33 +1,62 @@
 package pipeline
 
-type stageFunc[I any, O any] func(I) O
+import "github.com/kiriyms/conpats/pool"
 
-type stage[I any, O any] struct {
-	fn      stageFunc[I, O]
-	workers int
+type Pipeline[I, O any] struct {
+	in   <-chan I
+	out  <-chan O
+	fn   func(I) O
+	pool *pool.Pool
 }
 
-type Pipeline[I any] struct {
-	stages []any
-}
+func NewFromChannel[I, O any](fn func(I) O, in <-chan I, workers int) *Pipeline[I, O] {
+	p := pool.New(workers)
+	out := make(chan O)
 
-func New[I any]() *Pipeline[I] {
-	return &Pipeline[I]{
-		stages: make([]any, 0),
+	go func() {
+		for item := range in {
+			p.Go(func() {
+				out <- fn(item)
+			})
+		}
+	}()
+
+	return &Pipeline[I, O]{
+		in:   in,
+		out:  out,
+		fn:   fn,
+		pool: p,
 	}
 }
 
-func AddStage[I, O any](p *Pipeline[I], fn func(I) O, workers int) *Pipeline[O] {
-	if workers <= 0 {
-		workers = 1
-	}
+func NewFromSlice[I, O any](fn func(I) O, items []I, workers int) *Pipeline[I, O] {
+	p := pool.New(workers)
+	in := make(chan I)
+	out := make(chan O)
 
-	newStages := append(make([]any, 0), p.stages...)
-	newStages = append(newStages, stage[I, O]{fn: fn, workers: workers})
+	go func() {
+		for _, item := range items {
+			in <- item
+		}
+		close(in)
+	}()
 
-	return &Pipeline[O]{
-		stages: newStages,
+	go func() {
+		for item := range in {
+			p.Go(func() {
+				out <- fn(item)
+			})
+		}
+	}()
+
+	return &Pipeline[I, O]{
+		in:   in,
+		out:  out,
+		fn:   fn,
+		pool: p,
 	}
 }
 
-
+func (p *Pipeline[I, O]) Out() <-chan O {
+	return p.out
+}
