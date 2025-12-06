@@ -13,15 +13,16 @@ func TestPipeline(t *testing.T) {
 	t.Run("basic", func(t *testing.T) {
 		t.Parallel()
 
-		p := pipeline.New[int]()
-		p1 := pipeline.AddStage(p, func(i int) string {
-			return fmt.Sprint(i * 2)
-		}, 1)
-		p2 := pipeline.AddStage(p1, func(s string) float64 {
-			var f float64
-			fmt.Sscan(s, &f)
-			return f / 3.0
-		}, 2)
-		fmt.Println(p2)
+		p := pipeline.NewFromSlice(func(x int) string {
+			return fmt.Sprintf("Number: %d", x)
+		}, []int{1, 2, 3, 4, 5}, 2)
+
+		p1 := pipeline.NewFromChannel(func(s string) string {
+			return s + "!"
+		}, p.Out(), 2)
+
+		for result := range p1.Out() {
+			t.Log(result)
+		}
 	})
 }
