@@ -14,6 +14,8 @@ func NewFromChannel[I, O any](fn func(I) O, in <-chan I, workers int) *Pipeline[
 	out := make(chan O)
 
 	go func() {
+		defer close(out)
+		defer p.CloseAndWait()
 		for item := range in {
 			p.Go(func() {
 				out <- fn(item)
@@ -42,6 +44,8 @@ func NewFromSlice[I, O any](fn func(I) O, items []I, workers int) *Pipeline[I, O
 	}()
 
 	go func() {
+		defer close(out)
+		defer p.CloseAndWait()
 		for item := range in {
 			p.Go(func() {
 				out <- fn(item)

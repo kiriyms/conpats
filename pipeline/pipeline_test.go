@@ -13,16 +13,28 @@ func TestPipeline(t *testing.T) {
 	t.Run("basic", func(t *testing.T) {
 		t.Parallel()
 
-		p := pipeline.NewFromSlice(func(x int) string {
+		p := pipeline.NewFromSlice(func(x int) int {
+			return x * x
+		}, []int{1, 2, 3, 4, 5}, 1)
+
+		p1 := pipeline.NewFromChannel(func(x int) string {
 			return fmt.Sprintf("Number: %d", x)
-		}, []int{1, 2, 3, 4, 5}, 2)
+		}, p.Out(), 1)
 
-		p1 := pipeline.NewFromChannel(func(s string) string {
+		p2 := pipeline.NewFromChannel(func(s string) string {
 			return s + "!"
-		}, p.Out(), 2)
+		}, p1.Out(), 1)
 
-		for result := range p1.Out() {
-			t.Log(result)
+		results := []string{}
+		for result := range p2.Out() {
+			results = append(results, result)
+		}
+
+		expected := []string{"Number: 1!", "Number: 4!", "Number: 9!", "Number: 16!", "Number: 25!"}
+		for i, v := range expected {
+			if results[i] != v {
+				t.Errorf("expected %s, got %s", v, results[i])
+			}
 		}
 	})
 }
