@@ -1,15 +1,15 @@
-package pipeline
+package pipe
 
 import "github.com/kiriyms/conpats/pool"
 
-type Pipeline[I, O any] struct {
+type Pipe[I, O any] struct {
 	in   <-chan I
 	out  <-chan O
 	fn   func(I) O
 	pool *pool.Pool
 }
 
-func NewFromChannel[I, O any](fn func(I) O, in <-chan I, workers int) *Pipeline[I, O] {
+func NewFromChannel[I, O any](fn func(I) O, in <-chan I, workers int) *Pipe[I, O] {
 	p := pool.New(workers)
 	out := make(chan O)
 
@@ -23,7 +23,7 @@ func NewFromChannel[I, O any](fn func(I) O, in <-chan I, workers int) *Pipeline[
 		}
 	}()
 
-	return &Pipeline[I, O]{
+	return &Pipe[I, O]{
 		in:   in,
 		out:  out,
 		fn:   fn,
@@ -31,7 +31,7 @@ func NewFromChannel[I, O any](fn func(I) O, in <-chan I, workers int) *Pipeline[
 	}
 }
 
-func NewFromSlice[I, O any](fn func(I) O, items []I, workers int) *Pipeline[I, O] {
+func NewFromSlice[I, O any](fn func(I) O, items []I, workers int) *Pipe[I, O] {
 	p := pool.New(workers)
 	in := make(chan I)
 	out := make(chan O)
@@ -53,7 +53,7 @@ func NewFromSlice[I, O any](fn func(I) O, items []I, workers int) *Pipeline[I, O
 		}
 	}()
 
-	return &Pipeline[I, O]{
+	return &Pipe[I, O]{
 		in:   in,
 		out:  out,
 		fn:   fn,
@@ -61,6 +61,6 @@ func NewFromSlice[I, O any](fn func(I) O, items []I, workers int) *Pipeline[I, O
 	}
 }
 
-func (p *Pipeline[I, O]) Out() <-chan O {
+func (p *Pipe[I, O]) Out() <-chan O {
 	return p.out
 }
