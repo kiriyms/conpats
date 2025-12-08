@@ -140,3 +140,5 @@ Macro-goals are:
 1. Examples - Load Balancer utilizing WorkerPool
 2. Make patterns modular - one using another
 3. If possible, make patterns compatible with implementations from other packages
+4. Add "Thoughts&Notes"
+5. Add cookbook
