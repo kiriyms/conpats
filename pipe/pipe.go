@@ -2,14 +2,7 @@ package pipe
 
 import "github.com/kiriyms/conpats/pool"
 
-type Pipe[I, O any] struct {
-	in   <-chan I
-	out  <-chan O
-	fn   func(I) O
-	pool *pool.Pool
-}
-
-func NewFromChannel[I, O any](fn func(I) O, in <-chan I, workers int) *Pipe[I, O] {
+func PipeFromChan[I, O any](fn func(I) O, in <-chan I, workers int) <-chan O {
 	p := pool.New(workers)
 	out := make(chan O)
 
@@ -23,15 +16,10 @@ func NewFromChannel[I, O any](fn func(I) O, in <-chan I, workers int) *Pipe[I, O
 		}
 	}()
 
-	return &Pipe[I, O]{
-		in:   in,
-		out:  out,
-		fn:   fn,
-		pool: p,
-	}
+	return out
 }
 
-func NewFromSlice[I, O any](fn func(I) O, items []I, workers int) *Pipe[I, O] {
+func PipeFromSlice[I, O any](fn func(I) O, items []I, workers int) <-chan O {
 	p := pool.New(workers)
 	in := make(chan I)
 	out := make(chan O)
@@ -53,14 +41,13 @@ func NewFromSlice[I, O any](fn func(I) O, items []I, workers int) *Pipe[I, O] {
 		}
 	}()
 
-	return &Pipe[I, O]{
-		in:   in,
-		out:  out,
-		fn:   fn,
-		pool: p,
-	}
+	return out
 }
 
-func (p *Pipe[I, O]) Out() <-chan O {
-	return p.out
+func Collect[O any](out <-chan O) []O {
+	var results []O
+	for result := range out {
+		results = append(results, result)
+	}
+	return results
 }
