@@ -80,14 +80,14 @@ func TestPool(t *testing.T) {
 		t.Parallel()
 
 		p := pool.New(3)
-		ok := p.Go(func() { time.Sleep(2 * time.Millisecond) })
+		ok := p.TryGo(func() { time.Sleep(2 * time.Millisecond) })
 
 		if !ok {
 			t.Errorf("Should not error on .Go() if the Pool is not closed yet")
 		}
 
 		p.CloseAndWait()
-		ok = p.Go(func() { time.Sleep(2 * time.Millisecond) })
+		ok = p.TryGo(func() { time.Sleep(2 * time.Millisecond) })
 
 		if ok {
 			t.Errorf("Expected error on .Go() because Pool is closed")
@@ -98,14 +98,14 @@ func TestPool(t *testing.T) {
 		t.Parallel()
 
 		p := pool.New(3)
-		ok := p.Go(func() { time.Sleep(2 * time.Millisecond) })
+		ok := p.TryGo(func() { time.Sleep(2 * time.Millisecond) })
 
 		if !ok {
 			t.Errorf("Should not error on .Go() if the Pool is not closed yet")
 		}
 
 		p.Wait()
-		ok = p.Go(func() { time.Sleep(2 * time.Millisecond) })
+		ok = p.TryGo(func() { time.Sleep(2 * time.Millisecond) })
 
 		if !ok {
 			t.Errorf("Should not error on .Go() after a regular .Wait()")

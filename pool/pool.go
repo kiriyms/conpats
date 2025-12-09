@@ -4,13 +4,10 @@ import (
 	"sync"
 )
 
-// Job represents a single unit of work.
-type Job func()
-
 // Pool manages a fixed number of workers executing Jobs.
 type Pool struct {
 	limit int
-	jobs  chan Job
+	jobs  chan func()
 
 	activeWg sync.WaitGroup
 	wg       sync.WaitGroup
@@ -28,7 +25,7 @@ func New(workers int) *Pool {
 
 	p := &Pool{
 		limit: workers,
-		jobs:  make(chan Job),
+		jobs:  make(chan func()),
 	}
 
 	for i := 0; i < p.limit; i++ {
@@ -47,7 +44,23 @@ func New(workers int) *Pool {
 // Go submits a job to the pool.
 //
 // If a job is submitted after CloseAndWait() has been called, it will be dropped silently.
-func (p *Pool) Go(job Job) bool {
+func (p *Pool) Go(job func()) {
+	p.mu.Lock()
+	closed := p.closed
+	p.mu.Unlock()
+
+	if closed {
+		return
+	}
+
+	p.activeWg.Add(1)
+	p.jobs <- func() {
+		defer p.activeWg.Done()
+		job()
+	}
+}
+
+func (p *Pool) TryGo(job func()) bool {
 	p.mu.Lock()
 	closed := p.closed
 	p.mu.Unlock()
@@ -61,6 +74,7 @@ func (p *Pool) Go(job Job) bool {
 		defer p.activeWg.Done()
 		job()
 	}
+
 	return true
 }
 
