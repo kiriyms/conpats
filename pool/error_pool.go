@@ -6,8 +6,6 @@ import (
 	"sync"
 )
 
-type ErrorJob func() error
-
 type ErrorPool struct {
 	pool *Pool
 
@@ -15,8 +13,14 @@ type ErrorPool struct {
 	errs []error
 }
 
-func (p *ErrorPool) Go(job ErrorJob) bool {
-	return p.pool.Go(func() {
+func (p *ErrorPool) Go(job func() error) {
+	p.pool.Go(func() {
+		p.addErr(job())
+	})
+}
+
+func (p *ErrorPool) TryGo(job func() error) bool {
+	return p.pool.TryGo(func() {
 		p.addErr(job())
 	})
 }

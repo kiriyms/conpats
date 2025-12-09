@@ -5,8 +5,6 @@ import (
 	"errors"
 )
 
-type ContextJob func(ctx context.Context) error
-
 type ContextPool struct {
 	errorPool *ErrorPool
 
@@ -14,8 +12,14 @@ type ContextPool struct {
 	cancel context.CancelFunc
 }
 
-func (p *ContextPool) Go(job ContextJob) bool {
-	return p.errorPool.Go(func() error {
+func (p *ContextPool) Go(job func(context.Context) error) {
+	p.errorPool.Go(func() error {
+		return job(p.ctx)
+	})
+}
+
+func (p *ContextPool) TryGo(job func(context.Context) error) bool {
+	return p.errorPool.TryGo(func() error {
 		return job(p.ctx)
 	})
 }
@@ -25,15 +29,15 @@ func (p *ContextPool) Wait() error {
 }
 
 func (p *ContextPool) CloseAndWait() error {
-    if p.cancel != nil {
-        p.cancel()
-    }
+	if p.cancel != nil {
+		p.cancel()
+	}
 
-    err := p.errorPool.CloseAndWait()
+	err := p.errorPool.CloseAndWait()
 
-    if errors.Is(err, context.Canceled) {
-        return context.Canceled
-    }
+	if errors.Is(err, context.Canceled) {
+		return context.Canceled
+	}
 
-    return err
+	return err
 }
