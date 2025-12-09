@@ -7,28 +7,25 @@ import (
 	"github.com/kiriyms/conpats/pipe"
 )
 
-func TestPipeline(t *testing.T) {
+func TestPipe(t *testing.T) {
 	t.Parallel()
 
 	t.Run("basic", func(t *testing.T) {
 		t.Parallel()
 
-		p := pipe.NewFromSlice(func(x int) int {
+		p := pipe.PipeFromSlice(func(x int) int {
 			return x * x
 		}, []int{1, 2, 3, 4, 5}, 1)
 
-		p1 := pipe.NewFromChannel(func(x int) string {
+		p1 := pipe.PipeFromChan(func(x int) string {
 			return fmt.Sprintf("Number: %d", x)
-		}, p.Out(), 1)
+		}, p, 1)
 
-		p2 := pipe.NewFromChannel(func(s string) string {
+		p2 := pipe.PipeFromChan(func(s string) string {
 			return s + "!"
-		}, p1.Out(), 1)
+		}, p1, 1)
 
-		results := []string{}
-		for result := range p2.Out() {
-			results = append(results, result)
-		}
+		results := pipe.Collect(p2)
 
 		expected := []string{"Number: 1!", "Number: 4!", "Number: 9!", "Number: 16!", "Number: 25!"}
 		for i, v := range expected {
