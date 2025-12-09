@@ -2,8 +2,25 @@ package pipe
 
 import "github.com/kiriyms/conpats/pool"
 
-func PipeFromChan[I, O any](fn func(I) O, in <-chan I, workers int) <-chan O {
-	p := pool.New(workers)
+type Pool interface {
+	Go(func())
+	CloseAndWait()
+}
+
+type Option func(*Pool)
+
+func WithPool(p Pool) Option {
+	return func(pool *Pool) {
+		*pool = p
+	}
+}
+
+func PipeFromChan[I, O any](fn func(I) O, in <-chan I, workers int, opts ...Option) <-chan O {
+	var p Pool = pool.New(workers)
+	for _, opt := range opts {
+		opt(&p)
+	}
+
 	out := make(chan O)
 
 	go func() {
@@ -19,8 +36,12 @@ func PipeFromChan[I, O any](fn func(I) O, in <-chan I, workers int) <-chan O {
 	return out
 }
 
-func PipeFromSlice[I, O any](fn func(I) O, items []I, workers int) <-chan O {
-	p := pool.New(workers)
+func PipeFromSlice[I, O any](fn func(I) O, items []I, workers int, opts ...Option) <-chan O {
+	var p Pool = pool.New(workers)
+	for _, opt := range opts {
+		opt(&p)
+	}
+
 	in := make(chan I)
 	out := make(chan O)
 
