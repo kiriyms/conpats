@@ -2,6 +2,7 @@ package pool
 
 import (
 	"sync"
+	"sync/atomic"
 )
 
 // Pool manages a fixed number of workers executing Jobs.
@@ -13,8 +14,7 @@ type Pool struct {
 	wg       sync.WaitGroup
 
 	once   sync.Once
-	mu     sync.Mutex
-	closed bool
+	closed atomic.Bool
 }
 
 // New creates a new Pool and immediately spawns all its workers.
@@ -45,9 +45,7 @@ func New(workers int) *Pool {
 //
 // If a job is submitted after CloseAndWait() has been called, it will be dropped silently.
 func (p *Pool) Go(job func()) {
-	p.mu.Lock()
-	closed := p.closed
-	p.mu.Unlock()
+	closed := p.closed.Load()
 
 	if closed {
 		return
@@ -61,9 +59,7 @@ func (p *Pool) Go(job func()) {
 }
 
 func (p *Pool) TryGo(job func()) bool {
-	p.mu.Lock()
-	closed := p.closed
-	p.mu.Unlock()
+	closed := p.closed.Load()
 
 	if closed {
 		return false
@@ -85,12 +81,10 @@ func (p *Pool) Collect() {
 // Wait closes the job queue and blocks until all workers finish the jobs.
 func (p *Pool) Wait() {
 	p.once.Do(func() {
-		p.mu.Lock()
-		p.closed = true
+		p.closed.Store(true)
 
 		// Signal no more jobs.
 		close(p.jobs)
-		p.mu.Unlock()
 	})
 
 	// Wait for all workers to finish.
