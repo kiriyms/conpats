@@ -31,7 +31,7 @@ func TestPool(t *testing.T) {
 		}
 	})
 
-	t.Run("is reuseable after Wait", func(t *testing.T) {
+	t.Run("is reuseable after Collect", func(t *testing.T) {
 		t.Parallel()
 
 		p := pool.New(7)
@@ -76,7 +76,7 @@ func TestPool(t *testing.T) {
 		}
 	})
 
-	t.Run("returns error after CloseAndWait", func(t *testing.T) {
+	t.Run("returns error after Wait", func(t *testing.T) {
 		t.Parallel()
 
 		p := pool.New(3)
@@ -94,7 +94,7 @@ func TestPool(t *testing.T) {
 		}
 	})
 
-	t.Run("does not error after Wait", func(t *testing.T) {
+	t.Run("does not error after Collect", func(t *testing.T) {
 		t.Parallel()
 
 		p := pool.New(3)
@@ -108,7 +108,7 @@ func TestPool(t *testing.T) {
 		ok = p.TryGo(func() { time.Sleep(2 * time.Millisecond) })
 
 		if !ok {
-			t.Errorf("Should not error on .Go() after a regular .Wait()")
+			t.Errorf("Should not error on .Go() after a regular .Collect()")
 		}
 
 		p.Wait()
