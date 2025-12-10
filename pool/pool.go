@@ -78,12 +78,12 @@ func (p *Pool) TryGo(job func()) bool {
 	return true
 }
 
-func (p *Pool) Wait() {
+func (p *Pool) Collect() {
 	p.activeWg.Wait()
 }
 
-// CloseAndWait closes the job queue and blocks until all workers finish the jobs.
-func (p *Pool) CloseAndWait() {
+// Wait closes the job queue and blocks until all workers finish the jobs.
+func (p *Pool) Wait() {
 	p.once.Do(func() {
 		p.mu.Lock()
 		p.closed = true

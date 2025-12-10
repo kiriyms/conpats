@@ -4,7 +4,7 @@ import "github.com/kiriyms/conpats/pool"
 
 type Pool interface {
 	Go(func())
-	CloseAndWait()
+	Wait()
 }
 
 type Option func(*Pool)
@@ -25,7 +25,7 @@ func PipeFromChan[I, O any](fn func(I) O, in <-chan I, workers int, opts ...Opti
 
 	go func() {
 		defer close(out)
-		defer p.CloseAndWait()
+		defer p.Wait()
 		for item := range in {
 			p.Go(func() {
 				out <- fn(item)
@@ -54,7 +54,7 @@ func PipeFromSlice[I, O any](fn func(I) O, items []I, workers int, opts ...Optio
 
 	go func() {
 		defer close(out)
-		defer p.CloseAndWait()
+		defer p.Wait()
 		for item := range in {
 			p.Go(func() {
 				out <- fn(item)

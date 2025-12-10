@@ -26,12 +26,12 @@ func (p *ErrorPool) TryGo(job func() error) bool {
 }
 
 func (p *ErrorPool) Wait() error {
-	p.pool.Wait()
+	p.pool.Collect()
 	return p.getErrs()
 }
 
 func (p *ErrorPool) CloseAndWait() error {
-	p.pool.CloseAndWait()
+	p.pool.Wait()
 	return p.getErrs()
 }
 

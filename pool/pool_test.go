@@ -25,7 +25,7 @@ func TestPool(t *testing.T) {
 			})
 		}
 
-		p.CloseAndWait()
+		p.Wait()
 		if completed.Load() != int64(jobCount) {
 			t.Errorf("Jobs expected: %d, got: %d", jobCount, completed.Load())
 		}
@@ -47,7 +47,7 @@ func TestPool(t *testing.T) {
 			})
 		}
 
-		p.Wait()
+		p.Collect()
 		if completedPartA.Load() != int64(jobCount) {
 			t.Errorf("Part A jobs expected: %d, got: %d", jobCount, completedPartA.Load())
 		}
@@ -64,7 +64,7 @@ func TestPool(t *testing.T) {
 			})
 		}
 
-		p.CloseAndWait()
+		p.Wait()
 		if completedPartB.Load() != int64(jobCount) {
 			t.Errorf("Part B jobs expected: %d, got: %d", jobCount, completedPartB.Load())
 		}
@@ -86,7 +86,7 @@ func TestPool(t *testing.T) {
 			t.Errorf("Should not error on .Go() if the Pool is not closed yet")
 		}
 
-		p.CloseAndWait()
+		p.Wait()
 		ok = p.TryGo(func() { time.Sleep(2 * time.Millisecond) })
 
 		if ok {
@@ -104,13 +104,13 @@ func TestPool(t *testing.T) {
 			t.Errorf("Should not error on .Go() if the Pool is not closed yet")
 		}
 
-		p.Wait()
+		p.Collect()
 		ok = p.TryGo(func() { time.Sleep(2 * time.Millisecond) })
 
 		if !ok {
 			t.Errorf("Should not error on .Go() after a regular .Wait()")
 		}
 
-		p.CloseAndWait()
+		p.Wait()
 	})
 }
