@@ -5,7 +5,7 @@ import (
 	"sync/atomic"
 )
 
-// Pool manages a fixed number of workers executing Jobs.
+// Pool manages a fixed number of workers executing jobs.
 type Pool struct {
 	limit int
 	jobs  chan func()
@@ -43,7 +43,7 @@ func New(workers int) *Pool {
 
 // Go submits a job to the pool.
 //
-// If a job is submitted after CloseAndWait() has been called, it will be dropped silently.
+// If a job is submitted after Wait() has been called, it will be dropped silently.
 func (p *Pool) Go(job func()) {
 	closed := p.closed.Load()
 
@@ -58,6 +58,10 @@ func (p *Pool) Go(job func()) {
 	}
 }
 
+// TryGo attempts to submit a job to the pool.
+//
+// If a job is submitted after Wait() has been called, it will be dropped and false is returned.
+// Otherwise, true is returned.
 func (p *Pool) TryGo(job func()) bool {
 	closed := p.closed.Load()
 
@@ -74,23 +78,28 @@ func (p *Pool) TryGo(job func()) bool {
 	return true
 }
 
+// Collect blocks until all submitted jobs are finished.
+//
+// This does not prevent new jobs from being submitted after using Collect().
 func (p *Pool) Collect() {
 	p.activeWg.Wait()
 }
 
 // Wait closes the job queue and blocks until all workers finish the jobs.
+//
+// After calling Wait(), the Pool is considered closed; new jobs will be dropped.
 func (p *Pool) Wait() {
 	p.once.Do(func() {
 		p.closed.Store(true)
-
-		// Signal no more jobs.
 		close(p.jobs)
 	})
 
-	// Wait for all workers to finish.
 	p.wg.Wait()
 }
 
+// WithErrors converts the Pool to an ErrorPool
+//
+// Error pool can collect errors from jobs.
 func (p *Pool) WithErrors() *ErrorPool {
 	return &ErrorPool{
 		pool: p,
