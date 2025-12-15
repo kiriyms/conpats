@@ -22,7 +22,7 @@ func TestTee(t *testing.T) {
 			}
 		}()
 
-		outs := tee.Tee(in, n)
+		outs := tee.NewTee(in, n, 0)
 
 		if len(outs) != n {
 			t.Fatalf("expected %d output channels, got %d", n, len(outs))
@@ -84,7 +84,7 @@ func TestTee(t *testing.T) {
 			}
 		}()
 
-		outs := tee.Tee(in, n)
+		outs := tee.NewTee(in, n, 0)
 
 		if len(outs) != 1 {
 			t.Fatalf("expected 1 output channel, got %d", len(outs))
@@ -120,7 +120,7 @@ func TestTee(t *testing.T) {
 			}
 		}()
 
-		outs := tee.Tee(in, n)
+		outs := tee.NewTee(in, n, 0)
 
 		if len(outs) != 1 {
 			t.Fatalf("expected 1 output channel, got %d", len(outs))
@@ -153,7 +153,7 @@ func TestTee(t *testing.T) {
 			defer close(in)
 		}()
 
-		outs := tee.Tee(in, n)
+		outs := tee.NewTee(in, n, 0)
 
 		if len(outs) != n {
 			t.Fatalf("expected %d output channels, got %d", n, len(outs))
@@ -203,7 +203,7 @@ func TestTee(t *testing.T) {
 			}
 		}()
 
-		outs := tee.Tee(in, n)
+		outs := tee.NewTee(in, n, 0)
 
 		if len(outs) != n {
 			t.Fatalf("expected %d output channels, got %d", n, len(outs))
