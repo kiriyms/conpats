@@ -24,11 +24,11 @@ func (p *ContextPool) TryGo(job func(context.Context) error) bool {
 	})
 }
 
-func (p *ContextPool) Wait() error {
+func (p *ContextPool) Collect() error {
 	return p.errorPool.Collect()
 }
 
-func (p *ContextPool) CloseAndWait() error {
+func (p *ContextPool) Wait() error {
 	if p.cancel != nil {
 		p.cancel()
 	}

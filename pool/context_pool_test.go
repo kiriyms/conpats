@@ -46,7 +46,7 @@ func TestContextPool(t *testing.T) {
 			})
 		}
 
-		err := p.CloseAndWait()
+		err := p.Wait()
 
 		if ctxUsed.Load() != int64(jobCount) {
 			t.Errorf("Expected all jobs to receive context, got %d/%d", ctxUsed.Load(), jobCount)
@@ -90,7 +90,7 @@ func TestContextPool(t *testing.T) {
 			})
 		}
 
-		err := p.CloseAndWait()
+		err := p.Wait()
 
 		if completed.Load() != int64(jobCount) {
 			t.Errorf("Jobs expected: %d, got: %d", jobCount, completed.Load())
@@ -116,7 +116,7 @@ func TestContextPool(t *testing.T) {
 			return c.Err()
 		})
 
-		err := p.CloseAndWait()
+		err := p.Wait()
 
 		if sawCancel.Load() != 1 {
 			t.Fatalf("Expected job to observe context cancellation")
@@ -142,7 +142,7 @@ func TestContextPool(t *testing.T) {
 			return c.Err()
 		})
 
-		err := p.CloseAndWait()
+		err := p.Wait()
 
 		if !seenCancel.Load() {
 			t.Fatalf("Expected job to observe context cancellation triggered by CloseAndWait")
@@ -170,7 +170,7 @@ func TestContextPool(t *testing.T) {
 			return c.Err()
 		})
 
-		err := p.CloseAndWait()
+		err := p.Wait()
 
 		if !sawTimeout.Load() {
 			t.Fatalf("Expected job to observe context timeout")
