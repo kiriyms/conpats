@@ -25,7 +25,7 @@ func (p *ContextPool) TryGo(job func(context.Context) error) bool {
 }
 
 func (p *ContextPool) Wait() error {
-	return p.errorPool.Wait()
+	return p.errorPool.Collect()
 }
 
 func (p *ContextPool) CloseAndWait() error {
@@ -33,7 +33,7 @@ func (p *ContextPool) CloseAndWait() error {
 		p.cancel()
 	}
 
-	err := p.errorPool.CloseAndWait()
+	err := p.errorPool.Wait()
 
 	if errors.Is(err, context.Canceled) {
 		return context.Canceled

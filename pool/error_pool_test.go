@@ -34,7 +34,7 @@ func TestErrorPool(t *testing.T) {
 			})
 		}
 
-		err := p.CloseAndWait().Error()
+		err := p.Wait().Error()
 		err = strings.ReplaceAll(err, "\r\n", "\n")
 		errs := strings.Split(err, "\n")
 		if completed.Load() != int64(jobCount) {
@@ -60,7 +60,7 @@ func TestErrorPool(t *testing.T) {
 			})
 		}
 
-		err := p.CloseAndWait()
+		err := p.Wait()
 		if completed.Load() != int64(jobCount) {
 			t.Errorf("Jobs expected: %d, got: %d", jobCount, completed.Load())
 		}
