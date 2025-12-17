@@ -2,7 +2,6 @@ package pool
 
 import (
 	"context"
-	"errors"
 )
 
 type ContextPool struct {
@@ -24,20 +23,16 @@ func (p *ContextPool) TryGo(job func(context.Context) error) bool {
 	})
 }
 
-func (p *ContextPool) Collect() error {
+func (p *ContextPool) Collect() []error {
 	return p.errorPool.Collect()
 }
 
-func (p *ContextPool) Wait() error {
+func (p *ContextPool) Wait() []error {
 	if p.cancel != nil {
 		p.cancel()
 	}
 
 	err := p.errorPool.Wait()
-
-	if errors.Is(err, context.Canceled) {
-		return context.Canceled
-	}
 
 	return err
 }
