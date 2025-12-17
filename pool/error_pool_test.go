@@ -2,7 +2,6 @@ package pool_test
 
 import (
 	"fmt"
-	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -34,9 +33,7 @@ func TestErrorPool(t *testing.T) {
 			})
 		}
 
-		err := p.Wait().Error()
-		err = strings.ReplaceAll(err, "\r\n", "\n")
-		errs := strings.Split(err, "\n")
+		errs := p.Wait()
 		if completed.Load() != int64(jobCount) {
 			t.Errorf("Jobs expected: %d, got: %d", jobCount, completed.Load())
 		}
