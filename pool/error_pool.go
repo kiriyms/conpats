@@ -25,12 +25,12 @@ func (p *ErrorPool) TryGo(job func() error) bool {
 	})
 }
 
-func (p *ErrorPool) Collect() error {
+func (p *ErrorPool) Collect() []error {
 	p.pool.Collect()
 	return p.getErrs()
 }
 
-func (p *ErrorPool) Wait() error {
+func (p *ErrorPool) Wait() []error {
 	p.pool.Wait()
 	return p.getErrs()
 }
@@ -45,7 +45,7 @@ func (p *ErrorPool) WithContext(ctx context.Context) *ContextPool {
 	}
 }
 
-func (p *ErrorPool) getErrs() error {
+func (p *ErrorPool) getErrs() []error {
 	p.mu.Lock()
 	errs := p.errs
 	p.errs = nil
@@ -54,7 +54,7 @@ func (p *ErrorPool) getErrs() error {
 	if len(errs) == 0 {
 		return nil
 	}
-	return errors.Join(errs...)
+	return errs
 }
 
 func (p *ErrorPool) addErr(err error) {
