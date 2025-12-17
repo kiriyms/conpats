@@ -2,6 +2,7 @@ package pool_test
 
 import (
 	"fmt"
+	"sort"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -34,11 +35,27 @@ func TestErrorPool(t *testing.T) {
 		}
 
 		errs := p.Wait()
+
+		sort.Slice(errs, func(i, j int) bool {
+			var n int
+			var m int
+			fmt.Sscanf(errs[i].Error(), "err%d", &n)
+			fmt.Sscanf(errs[j].Error(), "err%d", &m)
+			return n < m
+		})
+
 		if completed.Load() != int64(jobCount) {
 			t.Errorf("Jobs expected: %d, got: %d", jobCount, completed.Load())
 		}
 		if len(errs) != int(errored.Load()) {
 			t.Errorf("Errors count mismatch; count: %d, collected: %d", errored.Load(), len(errs))
+		}
+
+		checkList := []string{"err0", "err5", "err10", "err15", "err20", "err25", "err30", "err35", "err40", "err45"}
+		for i, err := range errs {
+			if err.Error() != checkList[i] {
+				t.Errorf("Expected error %s, got %s", checkList[i], err.Error())
+			}
 		}
 	})
 
