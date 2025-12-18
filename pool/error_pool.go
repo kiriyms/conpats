@@ -8,6 +8,8 @@ import (
 type ErrorPool struct {
 	pool *Pool
 
+	onlyFirstErr bool
+
 	mu   sync.Mutex
 	errs []error
 }
@@ -52,6 +54,10 @@ func (p *ErrorPool) getErrs() []error {
 
 	if len(errs) == 0 {
 		return nil
+	}
+
+	if p.onlyFirstErr {
+		return []error{errs[0]}
 	}
 	return errs
 }

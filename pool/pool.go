@@ -100,8 +100,9 @@ func (p *Pool) Wait() {
 // WithErrors converts the Pool to an ErrorPool
 //
 // Error pool can collect errors from jobs.
-func (p *Pool) WithErrors() *ErrorPool {
+func (p *Pool) WithErrors(onlyFirstErr bool) *ErrorPool {
 	return &ErrorPool{
-		pool: p,
+		pool:         p,
+		onlyFirstErr: onlyFirstErr,
 	}
 }
