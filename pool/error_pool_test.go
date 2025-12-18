@@ -82,4 +82,38 @@ func TestErrorPool(t *testing.T) {
 			t.Errorf("Expected err to be nil")
 		}
 	})
+
+	t.Run("returns only first error", func(t *testing.T) {
+		t.Parallel()
+
+		p := pool.New(7).WithErrors(true)
+		jobCount := 50
+		var completed atomic.Int64
+		var errored atomic.Int64
+
+		for i := 0; i < jobCount; i++ {
+			p.Go(func() error {
+				time.Sleep(2 * time.Millisecond)
+				completed.Add(1)
+
+				if i%5 == 0 {
+					errored.Add(1)
+					return fmt.Errorf("err%d", i)
+				}
+				return nil
+			})
+		}
+
+		errs := p.Wait()
+
+		if completed.Load() != int64(jobCount) {
+			t.Errorf("Jobs expected: %d, got: %d", jobCount, completed.Load())
+		}
+		if len(errs) != 1 {
+			t.Errorf("Expected only one error, got %d", len(errs))
+		}
+		if errs[0].Error() != "err0" {
+			t.Errorf("Expected error 'err0', got '%s'", errs[0].Error())
+		}
+	})
 }
