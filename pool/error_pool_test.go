@@ -16,7 +16,7 @@ func TestErrorPool(t *testing.T) {
 	t.Run("returns 10 errors", func(t *testing.T) {
 		t.Parallel()
 
-		p := pool.New(7).WithErrors()
+		p := pool.New(7).WithErrors(false)
 		jobCount := 50
 		var completed atomic.Int64
 		var errored atomic.Int64
@@ -62,7 +62,7 @@ func TestErrorPool(t *testing.T) {
 	t.Run("returns nil if no errors", func(t *testing.T) {
 		t.Parallel()
 
-		p := pool.New(7).WithErrors()
+		p := pool.New(7).WithErrors(false)
 		jobCount := 50
 		var completed atomic.Int64
 

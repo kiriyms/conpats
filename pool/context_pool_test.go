@@ -20,7 +20,7 @@ func TestContextPool(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		p := pool.New(7).WithErrors().WithContext(ctx)
+		p := pool.New(7).WithErrors(false).WithContext(ctx)
 		jobCount := 50
 
 		var completed atomic.Int64
@@ -70,7 +70,7 @@ func TestContextPool(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		p := pool.New(7).WithErrors().WithContext(ctx)
+		p := pool.New(7).WithErrors(false).WithContext(ctx)
 
 		jobCount := 30
 		var completed atomic.Int64
@@ -101,7 +101,7 @@ func TestContextPool(t *testing.T) {
 		t.Parallel()
 
 		ctx, cancel := context.WithCancel(context.Background())
-		p := pool.New(4).WithErrors().WithContext(ctx)
+		p := pool.New(4).WithErrors(false).WithContext(ctx)
 
 		sawCancel := atomic.Int64{}
 
@@ -122,7 +122,7 @@ func TestContextPool(t *testing.T) {
 
 		ctx := context.Background()
 
-		p := pool.New(2).WithErrors().WithContext(ctx)
+		p := pool.New(2).WithErrors(false).WithContext(ctx)
 
 		seenCancel := atomic.Bool{}
 
@@ -143,7 +143,7 @@ func TestContextPool(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
 		defer cancel()
 
-		p := pool.New(2).WithErrors().WithContext(ctx)
+		p := pool.New(2).WithErrors(false).WithContext(ctx)
 
 		sawTimeout := atomic.Bool{}
 		p.Go(func(c context.Context) error {
