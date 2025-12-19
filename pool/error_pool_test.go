@@ -90,6 +90,8 @@ func TestErrorPool(t *testing.T) {
 		jobCount := 50
 		var completed atomic.Int64
 		var errored atomic.Int64
+		var errorId atomic.Int64
+		errorId.Store(-1)
 
 		for i := 0; i < jobCount; i++ {
 			p.Go(func() error {
@@ -98,6 +100,9 @@ func TestErrorPool(t *testing.T) {
 
 				if i%5 == 0 {
 					errored.Add(1)
+					if errorId.Load() == -1 {
+						errorId.Store(int64(i))
+					}
 					return fmt.Errorf("err%d", i)
 				}
 				return nil
@@ -112,8 +117,9 @@ func TestErrorPool(t *testing.T) {
 		if len(errs) != 1 {
 			t.Errorf("Expected only one error, got %d", len(errs))
 		}
-		if errs[0].Error() != "err0" {
-			t.Errorf("Expected error 'err0', got '%s'", errs[0].Error())
+		expectedErr := fmt.Sprintf("err%d", errorId.Load())
+		if errs[0].Error() != expectedErr {
+			t.Errorf("Expected error '%s', got '%s'", expectedErr, errs[0].Error())
 		}
 	})
 }
