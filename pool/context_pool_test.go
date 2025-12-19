@@ -2,7 +2,6 @@ package pool_test
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"sync/atomic"
 	"testing"
@@ -94,6 +93,53 @@ func TestContextPool(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("Expected error to be nil, got: %v", err)
+		}
+	})
+
+	t.Run("work cancels on parent context cancel", func(t *testing.T) {
+		t.Parallel()
+
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+
+		p := pool.New(7).WithErrors(false).WithContext(ctx)
+
+		jobCount := 4
+		var completed atomic.Int64
+		var cancelled atomic.Int64
+
+		for i := 0; i < jobCount; i++ {
+			p.Go(func(c context.Context) error {
+				select {
+				case <-c.Done():
+					cancelled.Add(1)
+					return c.Err()
+				case <-time.After(50 * time.Millisecond):
+					completed.Add(1)
+					return nil
+				}
+			})
+		}
+
+		cancel()
+
+		err := p.Wait()
+
+		if len(err) != jobCount {
+			t.Fatalf("Expected %d errors, got: %d", jobCount, len(err))
+		}
+
+		for _, e := range err {
+			if e != context.Canceled {
+				t.Errorf("Expected context.Canceled error, got: %v", e)
+			}
+		}
+
+		if completed.Load() != 0 {
+			t.Errorf("Expected 0 completed jobs, got: %d", completed.Load())
+		}
+		if cancelled.Load() != 4 {
+			t.Errorf("Expected 4 cancelled jobs, got: %d", cancelled.Load())
 		}
 	})
 }
