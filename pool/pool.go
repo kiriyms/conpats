@@ -7,7 +7,7 @@ import (
 
 // Pool manages a fixed number of workers executing jobs.
 type Pool struct {
-	limit int
+	workers int
 	jobs  chan func()
 
 	activeWg sync.WaitGroup
@@ -24,11 +24,11 @@ func New(workers int) *Pool {
 	}
 
 	p := &Pool{
-		limit: workers,
+		workers: workers,
 		jobs:  make(chan func()),
 	}
 
-	for i := 0; i < p.limit; i++ {
+	for i := 0; i < p.workers; i++ {
 		p.wg.Add(1)
 		go func() {
 			defer p.wg.Done()
