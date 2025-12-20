@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/kiriyms/conpats/pipe"
+	"github.com/sourcegraph/conc/pool"
 )
 
 func TestPipe(t *testing.T) {
@@ -161,6 +162,33 @@ func TestPipe(t *testing.T) {
 		for i, v := range expected {
 			if results[i] != v {
 				t.Errorf("expected %s, got %s", v, results[i])
+			}
+		}
+	})
+
+	t.Run("handles pipeline with another Pool implementation", func(t *testing.T) {
+		t.Parallel()
+
+		pool1 := pool.New()
+		p := pipe.PipeFromSlice(func(x int) int {
+			return x * x
+		}, []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}, 4, pipe.WithPool(pool1))
+
+		p1 := pipe.PipeFromChan(func(x int) int {
+			return x + 1
+		}, p, 2)
+
+		pool2 := pool.New()
+		p2 := pipe.PipeFromChan(func(x int) int {
+			return x * 2
+		}, p1, 5, pipe.WithPool(pool2))
+		results := pipe.Collect(p2)
+		sort.Ints(results)
+
+		expected := []int{4, 10, 20, 34, 52, 74, 100, 130, 164, 202, 244, 290, 340, 394, 452}
+		for i, v := range expected {
+			if results[i] != v {
+				t.Errorf("expected %d, got %d", v, results[i])
 			}
 		}
 	})
