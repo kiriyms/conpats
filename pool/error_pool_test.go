@@ -92,7 +92,7 @@ func TestErrorPool(t *testing.T) {
 	t.Run("returns only first error", func(t *testing.T) {
 		t.Parallel()
 
-		p := pool.New(7).WithErrors(true)
+		p := pool.New(3).WithErrors(true)
 		jobCount := 50
 		var completed atomic.Int64
 		var errored atomic.Int64
