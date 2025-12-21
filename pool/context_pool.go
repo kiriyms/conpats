@@ -18,7 +18,9 @@ func (p *ContextPool) Go(job func(context.Context) error) {
 		err := job(p.ctx)
 		if err != nil && p.cancelOnErr {
 			p.cancel()
-			p.errorPool.addErr(err)
+			if p.errorPool.onlyFirstErr {
+				p.errorPool.addErr(err)
+			}
 		}
 
 		return err
@@ -30,7 +32,9 @@ func (p *ContextPool) TryGo(job func(context.Context) error) bool {
 		err := job(p.ctx)
 		if err != nil && p.cancelOnErr {
 			p.cancel()
-			p.errorPool.addErr(err)
+			if p.errorPool.onlyFirstErr {
+				p.errorPool.addErr(err)
+			}
 		}
 
 		return err
