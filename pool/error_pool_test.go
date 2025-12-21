@@ -3,12 +3,18 @@ package pool_test
 import (
 	"fmt"
 	"sort"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
 
 	"github.com/kiriyms/conpats/pool"
 )
+
+type ErrorIdContainer struct {
+	sync.Mutex
+	id int64
+}
 
 func TestErrorPool(t *testing.T) {
 	t.Parallel()
@@ -90,8 +96,8 @@ func TestErrorPool(t *testing.T) {
 		jobCount := 50
 		var completed atomic.Int64
 		var errored atomic.Int64
-		var errorId atomic.Int64
-		errorId.Store(-1)
+
+		errorId := ErrorIdContainer{id: -1}
 
 		for i := 0; i < jobCount; i++ {
 			p.Go(func() error {
@@ -99,9 +105,11 @@ func TestErrorPool(t *testing.T) {
 				completed.Add(1)
 
 				if i%5 == 0 {
+					errorId.Lock()
+					defer errorId.Unlock()
 					errored.Add(1)
-					if errorId.Load() == -1 {
-						errorId.Store(int64(i))
+					if errorId.id == -1 {
+						errorId.id = int64(i)
 					}
 					return fmt.Errorf("err%d", i)
 				}
@@ -117,7 +125,7 @@ func TestErrorPool(t *testing.T) {
 		if len(errs) != 1 {
 			t.Errorf("Expected only one error, got %d", len(errs))
 		}
-		expectedErr := fmt.Sprintf("err%d", errorId.Load())
+		expectedErr := fmt.Sprintf("err%d", errorId.id)
 		if errs[0].Error() != expectedErr {
 			t.Errorf("Expected error '%s', got '%s'", expectedErr, errs[0].Error())
 		}
