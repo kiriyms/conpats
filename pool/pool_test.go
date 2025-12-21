@@ -113,4 +113,60 @@ func TestPool(t *testing.T) {
 
 		p.Wait()
 	})
+
+	t.Run("runs correctly with zero workers input", func(t *testing.T) {
+		t.Parallel()
+
+		p := pool.New(0)
+		jobCount := 20
+		var completed atomic.Int64
+
+		for i := 0; i < jobCount; i++ {
+			p.Go(func() {
+				time.Sleep(1 * time.Millisecond)
+				completed.Add(1)
+			})
+		}
+
+		p.Wait()
+		if completed.Load() != int64(jobCount) {
+			t.Errorf("Jobs expected: %d, got: %d", jobCount, completed.Load())
+		}
+	})
+
+	t.Run("runs correctly with negative workers input", func(t *testing.T) {
+		t.Parallel()
+
+		p := pool.New(-5)
+		jobCount := 20
+		var completed atomic.Int64
+
+		for i := 0; i < jobCount; i++ {
+			p.Go(func() {
+				time.Sleep(1 * time.Millisecond)
+				completed.Add(1)
+			})
+		}
+
+		p.Wait()
+		if completed.Load() != int64(jobCount) {
+			t.Errorf("Jobs expected: %d, got: %d", jobCount, completed.Load())
+		}
+	})
+
+	t.Run("does not error when calling Go after Wait", func(t *testing.T) {
+		t.Parallel()
+
+		p := pool.New(1)
+		p.Wait()
+
+		var completed atomic.Int64
+		p.Go(func() {
+			completed.Add(1)
+		})
+
+		if completed.Load() != 0 {
+			t.Errorf("Expected 0 completed jobs, got %d", completed.Load())
+		}
+	})
 }
