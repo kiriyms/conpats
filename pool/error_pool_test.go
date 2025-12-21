@@ -130,4 +130,82 @@ func TestErrorPool(t *testing.T) {
 			t.Errorf("Expected error '%s', got '%s'", expectedErr, errs[0].Error())
 		}
 	})
+
+	t.Run("handles TryGo correctly", func(t *testing.T) {
+		t.Parallel()
+
+		p := pool.New(1).WithErrors(false)
+		ok := p.TryGo(func() error {
+			time.Sleep(2 * time.Millisecond)
+			return nil
+		})
+
+		if !ok {
+			t.Fatalf("Should not error on .TryGo() if the Pool is not closed yet")
+		}
+
+		p.Wait()
+
+		ok = p.TryGo(func() error {
+			time.Sleep(2 * time.Millisecond)
+			return nil
+		})
+
+		if ok {
+			t.Fatalf("Expected error on .TryGo() because Pool is closed")
+		}
+	})
+
+	t.Run("collects errors correctly before Wait", func(t *testing.T) {
+		t.Parallel()
+
+		p := pool.New(5).WithErrors(false)
+		jobCount := 50
+		var completed atomic.Int64
+		var errored atomic.Int64
+
+		for i := 0; i < jobCount; i++ {
+			p.Go(func() error {
+				time.Sleep(2 * time.Millisecond)
+				completed.Add(1)
+
+				if i%5 == 0 {
+					errored.Add(1)
+					return fmt.Errorf("err%d", i)
+				}
+				return nil
+			})
+		}
+
+		collectedErrs := p.Collect()
+		if completed.Load() != int64(jobCount) {
+			t.Errorf("Jobs expected after Collect: %d, got: %d", errored.Load(), completed.Load())
+		}
+		if len(collectedErrs) != int(errored.Load()) {
+			t.Errorf("Errors count mismatch after Collect: count: %d, collected: %d", errored.Load(), len(collectedErrs))
+		}
+
+		errored.Store(0)
+
+		for i := 0; i < jobCount; i++ {
+			p.Go(func() error {
+				time.Sleep(2 * time.Millisecond)
+				completed.Add(1)
+
+				if i%5 == 0 {
+					errored.Add(1)
+					return fmt.Errorf("err%d", i)
+				}
+				return nil
+			})
+		}
+
+		errs := p.Wait()
+		if completed.Load() != int64(jobCount*2) {
+			t.Errorf("Jobs expected after Wait: %d, got: %d", jobCount*2, completed.Load())
+		}
+		if len(errs) != int(errored.Load()) {
+			t.Errorf("Errors count mismatch; count: %d, collected: %d", errored.Load(), len(errs))
+		}
+	})
 }
