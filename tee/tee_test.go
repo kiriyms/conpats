@@ -10,13 +10,15 @@ var basicCases = []struct {
 	name  string
 	chans int
 	buf   int
+	work  int
 }{
-	{"basic", 2, 0},
-	{"zero channels", 0, 0},
-	{"negative channels", -5, 0},
-	{"basic buffered", 3, 10},
-	{"zero channels buffered", 0, 5},
-	{"negative channels buffered", -2, 8},
+	{"basic", 2, 0, 100},
+	{"zero channels", 0, 0, 100},
+	{"negative channels", -5, 0, 100},
+	{"basic buffered", 3, 10, 100},
+	{"zero channels buffered", 0, 5, 100},
+	{"negative channels buffered", -2, 8, 100},
+	{"no work", 2, 0, 0},
 }
 
 func TestTee(t *testing.T) {
