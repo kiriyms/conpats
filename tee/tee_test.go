@@ -1,6 +1,7 @@
 package tee_test
 
 import (
+	"sync"
 	"testing"
 
 	"github.com/kiriyms/conpats/tee"
@@ -23,6 +24,61 @@ var basicCases = []struct {
 
 func TestTee(t *testing.T) {
 	t.Parallel()
+
+	for _, tc := range basicCases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			in := make(chan int)
+			go func() {
+				defer close(in)
+				for i := range tc.work {
+					in <- i
+				}
+			}()
+
+			outs := tee.NewTee(in, tc.chans, tc.buf)
+
+			if tc.chans > 0 && len(outs) != tc.chans {
+				t.Fatalf("expected %d output channels, got %d", tc.chans, len(outs))
+			}
+			if tc.chans <= 0 && len(outs) != 1 {
+				t.Fatalf("expected 1 output channel, got %d", len(outs))
+			}
+
+			var results [][]int
+			for range outs {
+				results = append(results, make([]int, 0))
+			}
+
+			var wg sync.WaitGroup
+			wg.Add(len(outs))
+
+			for i, out := range outs {
+				go func(idx int, ch <-chan int) {
+					defer wg.Done()
+
+					for item := range ch {
+						results[idx] = append(results[idx], item)
+					}
+				}(i, out)
+			}
+
+			wg.Wait()
+
+			for i := range results {
+				if len(results[i]) != tc.work {
+					t.Errorf("expected %d items from output channel %d, got %d", tc.work, i, len(results[i]))
+					// continue
+				}
+				for j := range tc.work {
+					if results[i][j] != j {
+						t.Errorf("expected results[%d][%d] to be %d, got %d", i, j, j, results[i][j])
+					}
+				}
+			}
+		})
+	}
 
 	t.Run("basic", func(t *testing.T) {
 		t.Parallel()
