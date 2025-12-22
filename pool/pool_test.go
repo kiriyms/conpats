@@ -8,6 +8,14 @@ import (
 	"github.com/kiriyms/conpats/pool"
 )
 
+var basicCases = []struct { name string; workers int; jobCount int } {
+	{"basic", 7, 50},
+	{"single worker", 1, 20},
+	{"many workers", 20, 100},
+	{"zero workers", 0, 20},
+	{"negative workers", -5, 20},
+}
+
 func TestPool(t *testing.T) {
 	t.Parallel()
 
