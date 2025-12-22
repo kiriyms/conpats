@@ -8,7 +8,11 @@ import (
 	"github.com/kiriyms/conpats/pool"
 )
 
-var basicCases = []struct { name string; workers int; jobCount int } {
+var basicCases = []struct {
+	name     string
+	workers  int
+	jobCount int
+}{
 	{"basic", 7, 50},
 	{"single worker", 1, 20},
 	{"many workers", 20, 100},
@@ -18,6 +22,27 @@ var basicCases = []struct { name string; workers int; jobCount int } {
 
 func TestPool(t *testing.T) {
 	t.Parallel()
+
+	for _, tc := range basicCases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			p := pool.New(tc.workers)
+			var completed atomic.Int64
+
+			for i := 0; i < tc.jobCount; i++ {
+				p.Go(func() {
+					time.Sleep(2 * time.Millisecond)
+					completed.Add(1)
+				})
+			}
+
+			p.Wait()
+			if completed.Load() != int64(tc.jobCount) {
+				t.Errorf("Jobs expected: %d, got: %d", tc.jobCount, completed.Load())
+			}
+		})
+	}
 
 	t.Run("basic", func(t *testing.T) {
 		t.Parallel()
