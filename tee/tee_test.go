@@ -46,6 +46,14 @@ func TestTee(t *testing.T) {
 				t.Fatalf("expected 1 output channel, got %d", len(outs))
 			}
 
+			if tc.buf > 0 {
+				for i := range outs {
+					if cap(outs[i]) != tc.buf {
+						t.Errorf("expected output channel %d to have buffer size %d, got %d", i, tc.buf, cap(outs[i]))
+					}
+				}
+			}
+
 			var results [][]int
 			for range outs {
 				results = append(results, make([]int, 0))
@@ -124,68 +132,6 @@ func TestTee(t *testing.T) {
 		}
 		if len(results1) != len(results2) {
 			t.Fatalf("expected both output channels to have the same length, got %d and %d", len(results1), len(results2))
-		}
-	})
-
-	t.Run("handles buffered channels", func(t *testing.T) {
-		t.Parallel()
-
-		n := 3
-		buf := 10
-		in := make(chan int)
-		go func() {
-			defer close(in)
-			for i := range 50 {
-				in <- i
-			}
-		}()
-		outs := tee.NewTee(in, n, buf)
-
-		if len(outs) != n {
-			t.Fatalf("expected %d output channels, got %d", n, len(outs))
-		}
-		for i := range outs {
-			if cap(outs[i]) != buf {
-				t.Errorf("expected output channel %d to have buffer size %d, got %d", i, buf, cap(outs[i]))
-			}
-		}
-
-		results := make([][]int, n)
-		for i := 0; i < n; i++ {
-			results[i] = make([]int, 0)
-		}
-		for outs[0] != nil || outs[1] != nil || outs[2] != nil {
-			select {
-			case v, ok := <-outs[0]:
-				if !ok {
-					outs[0] = nil
-					continue
-				}
-				results[0] = append(results[0], v)
-			case v, ok := <-outs[1]:
-				if !ok {
-					outs[1] = nil
-					continue
-				}
-				results[1] = append(results[1], v)
-			case v, ok := <-outs[2]:
-				if !ok {
-					outs[2] = nil
-					continue
-				}
-				results[2] = append(results[2], v)
-			}
-		}
-
-		for i := 0; i < n; i++ {
-			if len(results[i]) != 50 {
-				t.Fatalf("expected 50 items from output channel %d, got %d", i, len(results[i]))
-			}
-			for j := range len(results[i]) {
-				if results[i][j] != j {
-					t.Errorf("expected results[%d][%d] to be %d, got %d", i, j, j, results[i][j])
-				}
-			}
 		}
 	})
 }
