@@ -84,14 +84,14 @@ func (p *Pool) TryGo(job func()) bool {
 // Collect blocks until all submitted jobs are finished.
 //
 // This does not prevent new jobs from being submitted after using Collect().
-// Collect() does not close the Pool and stop the goroutine workers.
+// Collect() does not close the pool and stop the goroutine workers.
 func (p *Pool) Collect() {
 	p.activeWg.Wait()
 }
 
 // Wait closes the job queue and blocks until all workers finish the jobs.
 //
-// After calling Wait(), the Pool is considered closed; new jobs will be dropped.
+// After calling Wait(), the pool is considered closed; new jobs will be dropped.
 func (p *Pool) Wait() {
 	p.once.Do(func() {
 		p.closed.Store(true)
@@ -103,7 +103,7 @@ func (p *Pool) Wait() {
 
 // WithErrors converts the Pool to an ErrorPool
 //
-// Error pool accepts jobs that can return errors.
+// ErrorPool accepts jobs that can return errors.
 func (p *Pool) WithErrors(onlyFirstErr bool) *ErrorPool {
 	return &ErrorPool{
 		pool:         p,
