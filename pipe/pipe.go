@@ -4,7 +4,7 @@ import "github.com/kiriyms/conpats/pool"
 
 // Pool defines the interface for a worker pool that the Pipe uses for concurrent processing.
 //
-// By default, a pool.Pool instance is used, but custom implementations can be provided via WithPool().
+// By default, a pool.Pool instance is used, but custom implementations can be provided using WithPool().
 type Pool interface {
 	Go(func())
 	Wait()
@@ -20,6 +20,8 @@ func WithPool(p Pool) Option {
 }
 
 // PipeFromChan creates a pipe that processes items from the input channel using the provided function and a specified number of workers.
+//
+// The pipe can be customized by providing a custom Pool implementation or a Pool implementation from a different package using WithPool().
 func PipeFromChan[I, O any](fn func(I) O, in <-chan I, workers int, opts ...Option) <-chan O {
 	var p Pool = pool.New(workers)
 	for _, opt := range opts {
@@ -42,6 +44,8 @@ func PipeFromChan[I, O any](fn func(I) O, in <-chan I, workers int, opts ...Opti
 }
 
 // PipeFromSlice creates a pipe that processes items from the input slice using the provided function and a specified number of workers.
+//
+// The pipe can be customized by providing a custom Pool implementation or a Pool implementation from a different package using WithPool().
 func PipeFromSlice[I, O any](fn func(I) O, items []I, workers int, opts ...Option) <-chan O {
 	var p Pool = pool.New(workers)
 	for _, opt := range opts {
@@ -71,7 +75,7 @@ func PipeFromSlice[I, O any](fn func(I) O, items []I, workers int, opts ...Optio
 	return out
 }
 
-// Collect gathers all items from the output channel into a slice.
+// Collect gathers all items from the output channel into a slice and blocks until the channel is closed.
 func Collect[O any](out <-chan O) []O {
 	var results []O
 	for result := range out {
