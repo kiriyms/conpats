@@ -6,6 +6,9 @@ import (
 )
 
 // Pool manages a fixed number of workers executing jobs.
+//
+// A new pool must be created using New(). Jobs can be submitted using Go() or TryGo().
+// The pool can be gracefully shut down using Wait(), which blocks until all submitted jobs are complete.
 type Pool struct {
 	workers int
 	jobs  chan func()
@@ -17,7 +20,7 @@ type Pool struct {
 	closed atomic.Bool
 }
 
-// New creates a new Pool and immediately spawns all its workers.
+// New creates a new Pool and immediately spawns all its worker goroutines.
 func New(workers int) *Pool {
 	if workers <= 0 {
 		workers = 1
@@ -81,6 +84,7 @@ func (p *Pool) TryGo(job func()) bool {
 // Collect blocks until all submitted jobs are finished.
 //
 // This does not prevent new jobs from being submitted after using Collect().
+// Collect() does not close the Pool and stop the goroutine workers.
 func (p *Pool) Collect() {
 	p.activeWg.Wait()
 }
@@ -99,7 +103,7 @@ func (p *Pool) Wait() {
 
 // WithErrors converts the Pool to an ErrorPool
 //
-// Error pool can collect errors from jobs.
+// Error pool accepts jobs that can return errors.
 func (p *Pool) WithErrors(onlyFirstErr bool) *ErrorPool {
 	return &ErrorPool{
 		pool:         p,
