@@ -44,8 +44,7 @@ Main goals of this package are:
 
 1. Make concurrency easier and reduce boilerplate
 2. Provide a variety of common concurrency patterns in one place
-3. Structurize concurrency to improve control
-4. Avoid any third-party dependencies
+3. Avoid any third-party dependencies
 
 ## Workflow
 
