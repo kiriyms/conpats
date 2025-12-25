@@ -161,11 +161,3 @@ Macro-goals are:
 1. Flesh-out Pool and Error Pool, add Lazy Pool
 2. Add more concurrency patters, such as Fan-Out/Fan-In, Pub-Sub and others.
 3. Add monadic concurrency support for Pools
-
-### TODO
-
-1. Examples - Load Balancer utilizing WorkerPool
-2. Make patterns modular - one using another
-3. If possible, make patterns compatible with implementations from other packages
-4. Add "Thoughts&Notes"
-5. Add cookbook
