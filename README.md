@@ -13,8 +13,8 @@ go get github.com/kiriyms/conpats
 #### [Worker pool](/pool/README.md)
 
 - Use [`pool.Pool`](/pool/pool.go) when you need to run jobs concurrently with a goroutine limit.
-- Use [`pool.ErrorPool`](/pool/error_pool.go) when you need to run jobs *that return errors* concurrently with a giroutine limit.
-- Use [`pool.ContextPool`](/pool/context_pool.go) when you need to run jobs *that return errors and receive a `ctx.Context` parameter* concurrently with a giroutine limit.
+- Use [`pool.ErrorPool`](/pool/error_pool.go) when you need to run jobs _that return errors_ concurrently with a giroutine limit.
+- Use [`pool.ContextPool`](/pool/context_pool.go) when you need to run jobs _that return errors and receive a `ctx.Context` parameter_ concurrently with a giroutine limit.
 
 Every **Pool** must be created using [`pool.New()`](/pool/pool.go). To convert it use:
 
@@ -153,11 +153,9 @@ func main() {
 
 ## Status
 
-This package is in a `0.1.0` version.
+This package is in a `1.0.0` version.
 
-Core work is in progress.
-Macro-goals are:
+Core work is done, common concurrency patterns are implemented.
+Possible future improvements:
 
-1. Flesh-out Pool and Error Pool, add Lazy Pool
-2. Add more concurrency patters, such as Fan-Out/Fan-In, Pub-Sub and others.
-3. Add monadic concurrency support for Pools
+- Add more patters & utility functions (like Fan-in/Fan-out, Pub-Sub, etc.)
