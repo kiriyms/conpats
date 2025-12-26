@@ -46,6 +46,59 @@ Main goals of this package are:
 2. Provide a variety of common concurrency patterns in one place
 3. Avoid any third-party dependencies
 
+## Usage
+
+This section provides simple usage examples of **Worker Pool**, **Pipeline** and **Tee** usage compared to manual implementation. More examples can be found in these patterns' respective READMEs: [Pool](/pool/README.md), [Pipe](/pipe/README.md), [Tee](/tee/README.md).
+
+#### Worker Pool
+
+<table>
+<thead>
+<tr>
+<th>Manual</th>
+<th>Using <a href="/pool/pool.go"><code>pool.Pool</code></a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+
+```go
+func main() {	
+	wg := sync.WaitGroup{}
+	jobs := make(chan func())
+	for i := 0; i < 10; i++ {
+		wg.Go(func() {
+			for job := range jobs {
+				job()
+			}
+		})
+	}
+
+	for i := 0; i < 100; i++ {
+		jobs <- doWork
+	}
+	close(jobs)
+	wg.Wait()
+}
+
+```
+</td>
+<td>
+
+```go
+func main() {
+	p := pool.New(10)
+	for i := 0; i < 100; i++ {
+		p.Go(doWork)
+	}
+	p.Wait()
+}
+```
+</td>
+</tr>
+</tbody>
+</table>
 
 ## Status
 
