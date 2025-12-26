@@ -49,9 +49,10 @@ Main goals of this package are:
 
 ## Status
 
-This package is in a `1.0.0` version.
+This package is in a `1.0.0+` version.
 
-Core work is done, common concurrency patterns are implemented.
+Common concurrency patterns are implemented.
 Possible future improvements:
 
 - Add more patters & utility functions (like Fan-in/Fan-out, Pub-Sub, etc.)
+- Add more cookbook examples
