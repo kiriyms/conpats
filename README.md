@@ -50,7 +50,7 @@ Main goals of this package are:
 
 This section provides simple usage examples of **Worker Pool**, **Pipeline** and **Tee** usage compared to manual implementation. More examples can be found in these patterns' respective READMEs: [Pool](/pool/README.md), [Pipe](/pipe/README.md), [Tee](/tee/README.md).
 
-#### Worker Pool
+#### [Worker pool](/pool/README.md)
 
 <table>
 <thead>
@@ -64,7 +64,7 @@ This section provides simple usage examples of **Worker Pool**, **Pipeline** and
 <td>
 
 ```go
-func main() {	
+func main() {
 	wg := sync.WaitGroup{}
 	jobs := make(chan func())
 	for i := 0; i < 10; i++ {
@@ -83,6 +83,7 @@ func main() {
 }
 
 ```
+
 </td>
 <td>
 
@@ -95,14 +96,70 @@ func main() {
 	p.Wait()
 }
 ```
+
 </td>
 </tr>
 </tbody>
 </table>
 
+#### [Tee](/tee/README.md)
+
+<table>
+<thead>
+<tr>
+<th>Manual</th>
+<th>Using <a href="/tee/tee.go"><code>tee.Tee</code></a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+
+```go
+func main() {
+	in := make(chan int)
+	outs := make([]chan int, 3)
+	for i := range 3 {
+		outs[i] = make(chan int)
+	}
+
+	go func() {
+		defer func() {
+			for _, out := range outs {
+				close(out)
+			}
+		}()
+
+		for item := range in {
+			for _, out := range outs {
+				out <- item
+			}
+		}
+	}()
+}
+
+```
+
+</td>
+<td>
+
+```go
+func main() {
+	in := make(chan int)
+	outs := tee.NewTee(in, 3, 0)
+}
+```
+
+</td>
+</tr>
+</tbody>
+</table>
+
+> **Note**: if one of the output channels is blocked and waiting to be read from, it will cause all other output channels to block too.
+
 ## Status
 
-This package is in a `1.0.0+` version.
+**`v1`** (core API settled).
 
 Common concurrency patterns are implemented.
 Possible future improvements:
