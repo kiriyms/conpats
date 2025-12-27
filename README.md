@@ -81,7 +81,6 @@ func main() {
 	close(jobs)
 	wg.Wait()
 }
-
 ```
 
 </td>
@@ -102,13 +101,101 @@ func main() {
 </tbody>
 </table>
 
+#### [Pipeline](/pipe/README.md)
+
+<table>
+<thead>
+<tr>
+<th>Manual</th>
+<th>Using <a href="/pipe/pipe.go"><code>pipe.PipeFromChan()</code></a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+
+```go
+func main() {
+		nums := []int{1, 2, 3, 4, 5}
+
+	in := make(chan int)
+	go func() {
+		defer close(in)
+		for _, n := range nums {
+			in <- n
+		}
+	}()
+
+	sqrtChan := make(chan float64)
+	wgSqrt := sync.WaitGroup{}
+	go func() {
+		defer close(sqrtChan)
+		defer wgSqrt.Wait()
+		for i := 0; i < 5; i++ {
+			wgSqrt.Add(1)
+			go func() {
+				defer wgSqrt.Done()
+				for n := range in {
+					sqrtChan <- float64(math.Sqrt(float64(n)))
+				}
+			}()
+		}
+	}()
+
+	logChan := make(chan string)
+	wgLog := sync.WaitGroup{}
+	go func() {
+		defer close(logChan)
+		defer wgLog.Wait()
+		for i := 0; i < 3; i++ {
+			wgLog.Add(1)
+			go func() {
+				defer wgLog.Done()
+				for sq := range sqrtChan {
+					logChan <- fmt.Sprintf("Sqrt: %.2f", sq)
+				}
+			}()
+		}
+	}()
+
+	results := make([]string, 0)
+	for log := range logChan {
+		results = append(results, log)
+	}
+}
+```
+
+</td>
+<td>
+
+```go
+func main() {
+	nums := []int{1, 2, 3, 4, 5}
+
+	sqrtChan := pipe.PipeFromSlice(func(n int) float64 {
+		return math.Sqrt(float64(n))
+	}, nums, 5)
+
+	logChan := pipe.PipeFromChan(func(n float64) string {
+		return fmt.Sprintf("Sqrt: %.2f", n)
+	}, sqrtChan, 2)
+
+	results := pipe.Collect(logChan)
+}
+```
+
+</td>
+</tr>
+</tbody>
+</table>
+
 #### [Tee](/tee/README.md)
 
 <table>
 <thead>
 <tr>
 <th>Manual</th>
-<th>Using <a href="/tee/tee.go"><code>tee.Tee</code></a></th>
+<th>Using <a href="/tee/tee.go"><code>tee.NewTee()</code></a></th>
 </tr>
 </thead>
 <tbody>
@@ -137,7 +224,6 @@ func main() {
 		}
 	}()
 }
-
 ```
 
 </td>
