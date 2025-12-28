@@ -14,11 +14,11 @@ go get github.com/kiriyms/conpats
 
 - Use [`pool.Pool`](/pool/pool.go) when you need to run jobs concurrently with a goroutine limit.
 - Use [`pool.ErrorPool`](/pool/error_pool.go) when you need to run jobs _that return errors_ concurrently with a giroutine limit.
-- Use [`pool.ContextPool`](/pool/context_pool.go) when you need to run jobs _that return errors and receive a `ctx.Context` parameter_ concurrently with a giroutine limit.
+- Use [`pool.ContextPool`](/pool/context_pool.go) when you need to run jobs _that return errors and receive a `context.Context` argument_ concurrently with a giroutine limit.
 
 Every **Pool** must be created using [`pool.New()`](/pool/pool.go). To convert it use:
 
-- `.New().WithError(bool)` to get a `pool.ErrorPool`, where the `bool` parameter specifies if you want only the first error to be returned, rather that a slice of all errors.
+- `.New().WithError(bool)` to get a `pool.ErrorPool`, where the `bool` argument specifies if you want only the first error to be returned, rather that a slice of all errors.
 - `.New().WithError(bool).WithContext(ctx)` to get a `pool.ContextPool`, where the `ctx` paramater specifies your parent context that needs to be passed to all your jobs.
 
 #### [Pipeline](/pipe/README.md)
@@ -243,6 +243,16 @@ func main() {
 
 > **Note**: if one of the output channels is blocked and waiting to be read from, it will cause all other output channels to block too.
 
+## Cookbook
+
+The concurrency pattern abstractions in `conpats` are not extreme and can be easily combined with each other.
+
+To see usage examples that are more complex and closer to real-world problems, check out the [Cookbook](/COOKBOOK.md).
+
+## Thoughts & Notes
+
+Making a small `Go` package has been an enlightening and interesting experience. As a result of this endeavor, I've jotted down some [final thoughts](/THOUGHTS_AND_NOTES.md).
+
 ## Status
 
 **`v1`** (core API settled).
@@ -252,3 +262,4 @@ Possible future improvements:
 
 - Add more patters & utility functions (like Fan-in/Fan-out, Pub-Sub, etc.)
 - Add more cookbook examples
+- Improve API consistency (optional parameter pattern in ErrorPool and ContextPool)
