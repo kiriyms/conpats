@@ -6,11 +6,26 @@
 go get github.com/kiriyms/conpats
 ```
 
-## Quick rundown
+## Table of Contents
+
+- [Quick Rundown](#quick-rundown)
+  - [Worker Pool](#worker-pool)
+  - [Pipeline](#pipeline)
+  - [Tee](#tee)
+- [Goals](#goals)
+- [Usage](#usage)
+  - [Worker Pool](#worker-pool-1)
+  - [Pipeline](#pipeline-1)
+  - [Tee](#tee-1)
+- [Cookbook](#cookbook)
+- [Thoughts & Notes](#thoughts--notes)
+- [Status](#status)
+
+## Quick Rundown
 
 - `conpats` provides **Worker Pool**, **Pipeline** and **Tee**.
 
-#### [Worker pool](/pool/README.md)
+#### [Worker Pool](/pool/README.md)
 
 - Use [`pool.Pool`](/pool/pool.go) when you need to run jobs concurrently with a goroutine limit.
 - Use [`pool.ErrorPool`](/pool/error_pool.go) when you need to run jobs _that return errors_ concurrently with a giroutine limit.
@@ -50,7 +65,7 @@ Main goals of this package are:
 
 This section provides simple usage examples of **Worker Pool**, **Pipeline** and **Tee** usage compared to manual implementation. More examples can be found in these patterns' respective READMEs: [Pool](/pool/README.md), [Pipe](/pipe/README.md), [Tee](/tee/README.md).
 
-#### [Worker pool](/pool/README.md)
+#### [Worker Pool](/pool/README.md)
 
 <table>
 <thead>
