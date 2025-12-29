@@ -4,6 +4,7 @@
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/kiriyms/conpats.svg)](https://pkg.go.dev/github.com/kiriyms/conpats)
 [![Go Report Card](https://goreportcard.com/badge/github.com/kiriyms/conpats)](https://goreportcard.com/report/github.com/kiriyms/conpats)
+[![codecov](https://codecov.io/gh/kiriyms/conpats/branch/main/graph/badge.svg)](https://codecov.io/gh/kiriyms/conpats)
 [![Tag](https://img.shields.io/github/v/tag/kiriyms/conpats?style=flat-square&logo=fitbit&color=%23ff8936)](https://github.com/kiriyms/conpats/tags)
 
 ```sh
