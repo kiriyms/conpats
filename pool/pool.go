@@ -11,7 +11,7 @@ import (
 // The pool can be gracefully shut down using Wait(), which blocks until all submitted jobs are complete.
 type Pool struct {
 	workers int
-	jobs  chan func()
+	jobs    chan func()
 
 	activeWg sync.WaitGroup
 	wg       sync.WaitGroup
@@ -28,7 +28,7 @@ func New(workers int) *Pool {
 
 	p := &Pool{
 		workers: workers,
-		jobs:  make(chan func()),
+		jobs:    make(chan func()),
 	}
 
 	for i := 0; i < p.workers; i++ {
