@@ -260,7 +260,7 @@ func main() {
 
 ## Cookbook
 
-The concurrency pattern abstractions in `conpats` are not extreme and can be easily combined with each other.
+The concurrency pattern abstractions in `conpats` can be easily combined with each other.
 
 To see usage examples that are more complex and closer to real-world problems, check out the [Cookbook](/COOKBOOK.md).
 
