@@ -267,11 +267,11 @@ func main() {
 
 The concurrency pattern abstractions in `conpats` can be easily combined with each other.
 
-To see usage examples that are more complex and closer to real-world problems, check out the [Cookbook](/COOKBOOK.md).
+To see usage examples that are more complex and closer to real-world problems, check out the [Cookbook](/cookbook.md).
 
 ## Thoughts & Notes
 
-Making a small `Go` package has been an enlightening and interesting experience. As a result of this endeavor, I've jotted down some [final thoughts](/THOUGHTS_AND_NOTES.md).
+Making a small `Go` package has been an enlightening and interesting experience. As a result of this endeavor, I've jotted down some [final thoughts](/thoughts.md).
 
 ## Status
 
