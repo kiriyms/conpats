@@ -32,31 +32,31 @@ go get github.com/kiriyms/conpats
 
 #### [Worker Pool](/pool/README.md)
 
-- Use [`pool.Pool`](/pool/pool.go) when you need to run jobs concurrently with a goroutine limit.
-- Use [`pool.ErrorPool`](/pool/error_pool.go) when you need to run jobs _that return errors_ concurrently with a giroutine limit.
-- Use [`pool.ContextPool`](/pool/context_pool.go) when you need to run jobs _that return errors and receive a `context.Context` argument_ concurrently with a giroutine limit.
+- Use [`pool.Pool`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#Pool) when you need to run jobs concurrently with a goroutine limit.
+- Use [`pool.ErrorPool`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#ErrorPool) when you need to run jobs _that return errors_ concurrently with a giroutine limit.
+- Use [`pool.ContextPool`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#ContextPool) when you need to run jobs _that return errors and receive a `context.Context` argument_ concurrently with a giroutine limit.
 
-Every **Pool** must be created using [`pool.New()`](/pool/pool.go). To convert it use:
+Every **Pool** must be created using [`pool.New(...)`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#New). To convert it use:
 
-- `.New().WithError(bool)` to get a `pool.ErrorPool`, where the `bool` argument specifies if you want only the first error to be returned, rather that a slice of all errors.
-- `.New().WithError(bool).WithContext(ctx)` to get a `pool.ContextPool`, where the `ctx` paramater specifies your parent context that needs to be passed to all your jobs.
+- `.New(...).WithError(bool)` to get a `pool.ErrorPool`, where the `bool` argument specifies if you want only the first error to be returned, rather that a slice of all errors.
+- `.New(...).WithError(bool).WithContext(ctx)` to get a `pool.ContextPool`, where the `ctx` paramater specifies your parent context that needs to be passed to all your jobs.
 
 #### [Pipeline](/pipe/README.md)
 
-- Use [`pipe.PipeFromChan(...)`](/pipe/pipe.go) when you need to run all input values from a given channel through a function concurrently.
-- Use [`pipe.PipeFromSlice(...)`](/pipe/pipe.go) when you need to run all values of a given slice through a function concurrently.
+- Use [`pipe.PipeFromChan(...)`](https://pkg.go.dev/github.com/kiriyms/conpats/pipe#PipeFromChan) when you need to run all input values from a given channel through a function concurrently.
+- Use [`pipe.PipeFromSlice(...)`](https://pkg.go.dev/github.com/kiriyms/conpats/pipe#PipeFromSlice) when you need to run all values of a given slice through a function concurrently.
 
 Both **Pipe** functions return channels, making it easy to chain several pipes together or using the output channel in other ways, for example:
 
-- Use [`pipe.Collect(chan)`](/pipe/pipe.go) when you want to block and collect results from a channel into a slice until it is closed.
+- Use [`pipe.Collect(chan)`](https://pkg.go.dev/github.com/kiriyms/conpats/pipe#Collect) when you want to block and collect results from a channel into a slice until it is closed.
 
-The **Pipeline** implementation uses the [`pool.Pool`](/pool/pool.go) by default, but can be modified:
+The **Pipeline** implementation uses the [`pool.Pool`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#Pool) by default, but can be modified:
 
-- Use [`pipe.WithPool(pool)`](/pipe/pipe.go) option parameter to specify the **Worker Pool** implementation that the **Pipe** will use.
+- Use [`pipe.WithPool(pool)`](https://pkg.go.dev/github.com/kiriyms/conpats/pipe#WithPool) option parameter to specify the **Worker Pool** implementation that the **Pipe** will use.
 
 #### [Tee](/tee/README.md)
 
-- Use [`tee.NewTee(chan)`](/tee/tee.go) to create several channels (buffered or unbuffered) that each receive a copy of a value from a provided `chan` channel.
+- Use [`tee.NewTee(chan)`](https://pkg.go.dev/github.com/kiriyms/conpats/tee#NewTee) to create several channels (buffered or unbuffered) that each receive a copy of a value from a provided `chan` channel.
 
 ## Goals
 
