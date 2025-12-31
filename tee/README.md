@@ -4,7 +4,7 @@ Tee API implements a concurrency pattern, where an input from a singular channel
 
 ### Usage
 
-Simply use `tee.NewTee(...)`:
+Simply use [`tee.NewTee(...)`](https://pkg.go.dev/github.com/kiriyms/conpats/tee#NewTee):
 
 ```go
 in := make(chan int)
