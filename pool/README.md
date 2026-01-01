@@ -2,17 +2,17 @@
 
 Worker Pool API implements a concurrency pattern, where `n` goroutines are created and re-used to complete a load of jobs. The **Pool** enables _controlled_, _concurrent_ processing of jobs.
 
-In addition to the regular [`pool.Pool`](/pool/pool.go), `conpats` provides extended **Pools**: [`pool.ErrorPool`](/pool/error_pool.go) and [`pool.ContextPool`](/pool/context_pool.go).
+In addition to the regular [`pool.Pool`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#Pool), `conpats` provides extended **Pools**: [`pool.ErrorPool`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#ErrorPool) and [`pool.ContextPool`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#ContextPool).
 
 ### Usage
 
 The core workflow with the **Pool** is in three steps:
 
-1. `pool.New(...)`: start by creating a new pool.
-2. `pool.Go(...)`: add jobs to the pool to e processed concurrently.
-3. `pool.Wait()`: block until all jobs are finished and close the pool, freeing up resources.
+1. [`pool.New(...)`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#New): start by creating a new pool.
+2. [`pool.Go(...)`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#Pool.Go): add jobs to the pool to be processed concurrently.
+3. [`pool.Wait()`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#Pool.Wait): block until all jobs are finished and close the pool, freeing up resources.
 
-Every **Pool** always begins with a `pool.New(workers)` constructor, specifying the number of `worker` goroutines that will be created and used in the pool:
+Every **Pool** always begins with a [`pool.New(workers)`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#New) constructor, specifying the number of `worker` goroutines that will be created and used in the pool:
 
 ```go
 // create a pool with 10 worker goroutines
@@ -25,7 +25,7 @@ p = pool.New(-5)
 
 > **Note**: all worker goroutines in a **Pool** are created _immediately_, and are _re-used_ for jobs.
 
-Add an arbitrary number of jobs using `pool.Go(func())`:
+Add an arbitrary number of jobs using [`pool.Go(func())`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#Pool.Go):
 
 ```go
 p := pool.New(10)
@@ -38,9 +38,9 @@ for i := 0; i < 100; i++ {
 }
 ```
 
-> **Note**: `pool.Go(...)` will block if all worker goroutines are busy at the moment.
+> **Note**: [`pool.Go(...)`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#Pool.Go) will block if all worker goroutines are busy at the moment.
 
-Finally, to syncronize and wait for all submitted work to finish, use `pool.Wait()`, which will also close the **Pool** and its workers, freeing up resources:
+Finally, to syncronize and wait for all submitted work to finish, use [`pool.Wait()`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#Pool.Wait), which will also close the **Pool** and its workers, freeing up resources:
 
 ```go
 p := pool.New(10)
@@ -55,7 +55,7 @@ for i := 0; i < 100; i++ {
 p.Wait()
 ```
 
-The core idea of a **Worker Pool** is to re-use its workers. Syncronize and wait for job completion without closing the **Pool** using `pool.Collect()`, which enables adding more jobs later, if needed:
+The core idea of a **Worker Pool** is to re-use its workers. Syncronize and wait for job completion without closing the **Pool** using [`pool.Collect()`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#Pool.Collect), which enables adding more jobs later, if needed:
 
 ```go
 p := pool.New(10)
@@ -89,7 +89,7 @@ p.Go(func() {
 }) // nothing happens
 ```
 
-To check whether the job has been successfully submitted, use `pool.TryGo(...)`:
+To check whether the job has been successfully submitted, use [`pool.TryGo(...)`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#Pool.TryGo):
 
 ```go
 p := pool.New(1)
@@ -113,7 +113,7 @@ ok = p.TryGo(func() {
 
 #### Error Pool
 
-To process jobs that return errors, use `pool.ErrorPool`:
+To process jobs that return errors, use [`pool.ErrorPool`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#ErrorPool):
 
 ```go
 p := pool.New(10).WithErrors(false)
@@ -139,9 +139,9 @@ for i := 0; i < 50; i++ {
 errs := p.Wait() // slice of 10 errors
 ```
 
-> **Note**: currently `pool.ErrorPool` does not handle panics in any way.
+> **Note**: currently [`pool.ErrorPool`](<(https://pkg.go.dev/github.com/kiriyms/conpats/pool#ErrorPool)>) does not handle panics in any way.
 
-Like in `pool.Pool`, use `.Collect()` to block and wait for submitted jobs to finish, without closing the **Error Pool** and return the collected errors. This will also clear the **Error Pool's** error storage, meaning all subsequent `.Collect()` and `.Wait()` calls will only return the new errors:
+Like in `pool.Pool`, use [`.Collect()`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#ErrorPool.Collect) to block and wait for submitted jobs to finish, without closing the **Error Pool** and return the collected errors. This will also clear the **Error Pool's** error storage, meaning all subsequent [`.Collect()`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#ErrorPool.Collect) and [`.Wait()`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#ErrorPool.Wait) calls will only return the new errors:
 
 ```go
 p := pool.New(10).WithErrors(false)
@@ -167,7 +167,7 @@ errs = p.Wait() // any collected errors from the previous 25 newly submitted job
 
 #### Context Pool
 
-To process jobs that return errors and accept a `context.Context` argument, use `pool.ContextPool`:
+To process jobs that return errors and accept a `context.Context` argument, use [`pool.ContextPool`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#ContextPool):
 
 ```go
 ctx, cancel := context.WithCancel(context.Background())
@@ -178,7 +178,7 @@ p := pool.New(4).WithErrors(false).WithContext(ctx)
 
 The **Context Pool** creates its own child context based on the context passed in the constructor.
 
-The **Context Pool** can be configured to cancel its context immediately when an error is returned from the jobs using `.WithCancelOnError(bool)`:
+The **Context Pool** can be configured to cancel its context immediately when an error is returned from the jobs using [`.WithCancelOnError(bool)`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#ContextPool.WithCancelOnError):
 
 ```go
 p := pool.New(12).WithErrors(false).WithContext(ctx).WithCancelOnError(true)
