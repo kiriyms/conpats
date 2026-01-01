@@ -4,7 +4,7 @@ Pipeline API implements a concurrency pattern, where an input of `values[I]` is 
 
 ### Usage
 
-The **Pipes** are constructed using one of the two functions: `pipe.PipeFromChan(...)`:
+The **Pipes** are constructed using one of the two functions: [`pipe.PipeFromChan(...)`](https://pkg.go.dev/github.com/kiriyms/conpats/pipe#PipeFromChan):
 
 ```go
 nums := []int{1, 2, 3, 4, 5}
@@ -22,7 +22,7 @@ out := pipe.PipeFromChan(func(n int) int {
 }, in, 2)
 ```
 
-Or `pipe.PipeFromSlice(...)`, which works like the above example, but abstracts the generator:
+Or [`pipe.PipeFromSlice(...)`](https://pkg.go.dev/github.com/kiriyms/conpats/pipe#PipeFromSlice), which works like the above example, but abstracts the generator:
 
 ```go
 nums := []int{1, 2, 3, 4, 5}
@@ -64,7 +64,7 @@ logChan := pipe.PipeFromChan(func(n float64) string {
 }, sqrtChan, 1)
 ```
 
-Conveniently collect the results of a final **Pipe** segment using a utility function `pipe.Collect(chan)`, which will block until the **Pipe** output channel is closed:
+Conveniently collect the results of a final **Pipe** segment using a utility function [`pipe.Collect(chan)`](https://pkg.go.dev/github.com/kiriyms/conpats/pipe#Collect), which will block until the **Pipe** output channel is closed:
 
 ```go
 nums := []int{1, 2, 3, 4, 5}
@@ -76,7 +76,7 @@ out := pipe.PipeFromSlice(func(n int) float64 {
 results := pipe.Collect(out)
 ```
 
-The **Pipes** process values concurrently using a **Worker Pool** under the hood. By default, [`pool.Pool`](/pool/pool.go) provided by `conpats` is used. However, the **Pool** implementation can be configured using the `pipe.WithPool(pool)`, which accepts a simple `pipe.Pool` interface:
+The **Pipes** process values concurrently using a **Worker Pool** under the hood. By default, [`pool.Pool`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#Pool) provided by `conpats` is used. However, the **Pool** implementation can be configured using the [`pipe.WithPool(pool)`](https://pkg.go.dev/github.com/kiriyms/conpats/pipe#WithPool), which accepts a simple [`pipe.Pool`](https://pkg.go.dev/github.com/kiriyms/conpats/pipe#Pool) interface:
 
 ```go
 type Pool interface {
@@ -97,7 +97,7 @@ out := pipe.PipeFromSlice(func(n int) float64 {
 results := pipe.Collect(out)
 ```
 
-To avoid goroutine leaks, it is expected that the `Wait()` function of the `pipe.Pool` interface is the final step of the **Pool** lifecycle, which closes the **Pool** and blocks until all remaining work is done and the underlying goroutines are terminated.
+To avoid goroutine leaks, it is expected that the `Wait()` function of the [`pipe.Pool`](https://pkg.go.dev/github.com/kiriyms/conpats/pipe#Pool) interface is the final step of the **Pool** lifecycle, which closes the **Pool** and blocks until all remaining work is done and the underlying goroutines are terminated.
 
 Alternatively, provide a **Worker Pool** implementation from a different package. For example, [`conc`'s Pool](https://github.com/sourcegraph/conc) fits the interface:
 
