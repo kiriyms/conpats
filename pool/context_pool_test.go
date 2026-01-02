@@ -19,7 +19,7 @@ func TestContextPool(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		p := pool.New(7).WithErrors(false).WithContext(ctx)
+		p := pool.New(7).WithErrors().WithContext(ctx)
 		jobCount := 50
 
 		var completed atomic.Int64
@@ -69,7 +69,7 @@ func TestContextPool(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		p := pool.New(7).WithErrors(false).WithContext(ctx)
+		p := pool.New(7).WithErrors().WithContext(ctx)
 
 		jobCount := 30
 		var completed atomic.Int64
@@ -102,7 +102,7 @@ func TestContextPool(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		p := pool.New(7).WithErrors(false).WithContext(ctx)
+		p := pool.New(7).WithErrors().WithContext(ctx)
 
 		jobCount := 4
 		var completed atomic.Int64
@@ -149,7 +149,7 @@ func TestContextPool(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		p := pool.New(1).WithErrors(false).WithContext(ctx)
+		p := pool.New(1).WithErrors().WithContext(ctx)
 		ok := p.TryGo(func(c context.Context) error {
 			time.Sleep(2 * time.Millisecond)
 			return nil
@@ -177,7 +177,7 @@ func TestContextPool(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		p := pool.New(5).WithErrors(false).WithContext(ctx).WithCancelOnError(true)
+		p := pool.New(5).WithErrors().WithContext(ctx).WithCancelOnError(true)
 		jobCount := 50
 		var completed atomic.Int64
 		var cancelled atomic.Int64
@@ -217,7 +217,7 @@ func TestContextPool(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		p := pool.New(5).WithErrors(true).WithContext(ctx).WithCancelOnError(true)
+		p := pool.New(5).WithErrors(pool.WithOnlyFirstErr()).WithContext(ctx).WithCancelOnError(true)
 		jobCount := 50
 		var completed atomic.Int64
 		var cancelled atomic.Int64
@@ -260,7 +260,7 @@ func TestContextPool(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		p := pool.New(1).WithErrors(true).WithContext(ctx).WithCancelOnError(true)
+		p := pool.New(1).WithErrors(pool.WithOnlyFirstErr()).WithContext(ctx).WithCancelOnError(true)
 		ok := p.TryGo(func(c context.Context) error {
 			time.Sleep(2 * time.Millisecond)
 			return fmt.Errorf("intentional error")
@@ -288,7 +288,7 @@ func TestContextPool(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		p := pool.New(3).WithErrors(false).WithContext(ctx)
+		p := pool.New(3).WithErrors().WithContext(ctx)
 		jobCount := 50
 		var completed atomic.Int64
 		var errored atomic.Int64
