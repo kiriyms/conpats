@@ -5,6 +5,15 @@ import (
 	"sync/atomic"
 )
 
+type Option func(*ErrorPool)
+
+// WithOnlyFirstErr allows specifying if an Error Pool will only return the first error.
+func WithOnlyFirstErr() Option {
+	return func(p *ErrorPool) {
+		p.onlyFirstErr = true
+	}
+}
+
 // Pool manages a fixed number of workers executing jobs.
 //
 // A new pool must be created using New(). Jobs can be submitted using Go() or TryGo().
@@ -104,9 +113,14 @@ func (p *Pool) Wait() {
 // WithErrors converts the Pool to an ErrorPool
 //
 // ErrorPool accepts jobs that can return errors.
-func (p *Pool) WithErrors(onlyFirstErr bool) *ErrorPool {
-	return &ErrorPool{
-		pool:         p,
-		onlyFirstErr: onlyFirstErr,
+func (p *Pool) WithErrors(opts ...Option) *ErrorPool {
+	ep := ErrorPool{
+		pool: p,
 	}
+
+	for _, opt := range opts {
+		opt(&ep)
+	}
+
+	return &ep
 }
