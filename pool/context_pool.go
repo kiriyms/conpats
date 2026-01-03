@@ -72,10 +72,3 @@ func (p *ContextPool) Wait() []error {
 
 	return err
 }
-
-// WithCancelOnError sets whether the context pool should cancel its context upon encountering an error in any job.
-// By default, this is false and all the jobs will continue to run even if some jobs return errors.
-func (p *ContextPool) WithCancelOnError(cancelOnErr bool) *ContextPool {
-	p.cancelOnErr = cancelOnErr
-	return p
-}
