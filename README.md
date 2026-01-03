@@ -282,4 +282,3 @@ Possible future improvements:
 
 - Add more patters & utility functions (like Fan-in/Fan-out, Pub-Sub, etc.)
 - Add more cookbook examples
-- Improve API consistency (optional parameter pattern in ErrorPool and ContextPool)
