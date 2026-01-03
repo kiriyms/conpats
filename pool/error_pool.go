@@ -5,6 +5,16 @@ import (
 	"sync"
 )
 
+type OptionCtx func(*ContextPool)
+
+// WithCancelOnErr sets whether the context pool should cancel its context upon encountering an error in any job.
+// By default, this is false and all the jobs will continue to run even if some jobs return errors.
+func WithCancelOnErr() OptionCtx {
+	return func(p *ContextPool) {
+		p.cancelOnErr = true
+	}
+}
+
 // ErrorPool extends Pool to handle jobs that return errors.
 //
 // A new error pool must be created using New().WithErrors(). Jobs can be submitted using Go() or TryGo().
@@ -57,14 +67,20 @@ func (p *ErrorPool) Wait() []error {
 // WithErrors converts the ErrorPool to a ContextPool
 //
 // ContextPool accepts jobs that expect a ctx.context as a parameter and can return errors.
-func (p *ErrorPool) WithContext(ctx context.Context) *ContextPool {
+func (p *ErrorPool) WithContext(ctx context.Context, opts ...OptionCtx) *ContextPool {
 	cctx, cancel := context.WithCancel(ctx)
 
-	return &ContextPool{
+	cp := &ContextPool{
 		errorPool: p,
 		ctx:       cctx,
 		cancel:    cancel,
 	}
+
+	for _, opt := range opts {
+		opt(cp)
+	}
+
+	return cp
 }
 
 func (p *ErrorPool) getErrs() []error {
