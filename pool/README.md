@@ -116,16 +116,13 @@ ok = p.TryGo(func() {
 To process jobs that return errors, use [`pool.ErrorPool`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#ErrorPool):
 
 ```go
-p := pool.New(10).WithErrors(false)
+p := pool.New(10).WithErrors()
 ```
 
-Use the `onlyFirstErr` `bool` argument in `pool.WithErrors(...)` to specify:
-
-- `false`: make `.Collect()` and `.Wait()` return all collected errors
-- `true`: make `.Collect()` and `.Wait()` return only the first error
+Use the [`pool.WithOnlyFirstErr()`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#WithOnlyFirstErr) option parameter in `pool.WithErrors()` to specify whether the pool should only return the first error it collected:
 
 ```go
-p := pool.New(2).WithErrors(false)
+p := pool.New(2).WithErrors() // default, return all errors
 
 for i := 0; i < 50; i++ {
     p.Go(func() error {
@@ -139,12 +136,27 @@ for i := 0; i < 50; i++ {
 errs := p.Wait() // slice of 10 errors
 ```
 
+```go
+p := pool.New(2).WithErrors(pool.WithOnlyFirstError()) // configure to only return the first colelcted error
+
+for i := 0; i < 50; i++ {
+    p.Go(func() error {
+        if i%5 == 0 {
+            return fmt.Errorf("err%d", i)
+        }
+        return nil
+    })
+}
+
+errs := p.Wait() // slice of 1 error
+```
+
 > **Note**: currently [`pool.ErrorPool`](<(https://pkg.go.dev/github.com/kiriyms/conpats/pool#ErrorPool)>) does not handle panics in any way.
 
 Like in `pool.Pool`, use [`.Collect()`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#ErrorPool.Collect) to block and wait for submitted jobs to finish, without closing the **Error Pool** and return the collected errors. This will also clear the **Error Pool's** error storage, meaning all subsequent [`.Collect()`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#ErrorPool.Collect) and [`.Wait()`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#ErrorPool.Wait) calls will only return the new errors:
 
 ```go
-p := pool.New(10).WithErrors(false)
+p := pool.New(10).WithErrors()
 
 for i := 0; i < 100; i++ {
     p.Go(func() error {
@@ -173,13 +185,13 @@ To process jobs that return errors and accept a `context.Context` argument, use 
 ctx, cancel := context.WithCancel(context.Background())
 defer cancel()
 
-p := pool.New(4).WithErrors(false).WithContext(ctx)
+p := pool.New(4).WithErrors().WithContext(ctx)
 ```
 
 The **Context Pool** creates its own child context based on the context passed in the constructor.
 
-The **Context Pool** can be configured to cancel its context immediately when an error is returned from the jobs using [`.WithCancelOnError(bool)`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#ContextPool.WithCancelOnError):
+The **Context Pool** can be configured to cancel its own context immediately when an error is returned from the jobs using [`pool.WithCancelOnError()`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#WithCancelOnError):
 
 ```go
-p := pool.New(12).WithErrors(false).WithContext(ctx).WithCancelOnError(true)
+p := pool.New(12).WithErrors().WithContext(ctx, pool.WithCancelOnError())
 ```
