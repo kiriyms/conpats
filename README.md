@@ -38,8 +38,8 @@ go get github.com/kiriyms/conpats
 
 Every **Pool** must be created using [`pool.New(...)`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#New). To convert it use:
 
-- `.New(...).WithError(bool)` to get a `pool.ErrorPool`, where the `bool` argument specifies if you want only the first error to be returned, rather that a slice of all errors.
-- `.New(...).WithError(bool).WithContext(ctx)` to get a `pool.ContextPool`, where the `ctx` paramater specifies your parent context that needs to be passed to all your jobs.
+- `.New(...).WithErrors()` to get a `pool.ErrorPool`.
+- `.New(...).WithErrors().WithContext(ctx)` to get a `pool.ContextPool`, where the `ctx` paramater specifies your parent context that needs to be passed to all your jobs.
 
 #### [Pipeline](/pipe/README.md)
 
