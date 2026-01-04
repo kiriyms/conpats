@@ -1,0 +1,37 @@
+<svg width="1920" height="640" viewBox="0 0 1920 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_225_179)">
+<rect width="1920" height="640" fill="#0B0E14"/>
+<path d="M446 0H1346L1446 640H546L446 0Z" fill="black" fill-opacity="0.2"/>
+<path d="M1316 0H1346L1446 640H1416L1316 0Z" fill="black" fill-opacity="0.2"/>
+<path d="M446 0H476L576 640H546L446 0Z" fill="black" fill-opacity="0.2"/>
+<line y1="118.5" x2="800" y2="118.5" stroke="#00E676" stroke-width="5"/>
+<line y1="317.5" x2="800" y2="317.5" stroke="#FFD600" stroke-width="5"/>
+<line x1="1056" y1="317.5" x2="1920" y2="317.5" stroke="#FFD600" stroke-width="5"/>
+<line y1="516.5" x2="800" y2="516.5" stroke="#FF1744" stroke-width="5"/>
+<line x1="1056" y1="516.5" x2="1920" y2="516.5" stroke="#FF1744" stroke-width="5"/>
+<line x1="1056" y1="118.5" x2="1920" y2="118.5" stroke="#00E676" stroke-width="5"/>
+<circle cx="867.5" cy="91.5" r="20" stroke="#DADFE7" stroke-width="5"/>
+<circle cx="929.5" cy="91.5" r="20" stroke="#DADFE7" stroke-width="5"/>
+<circle cx="991.5" cy="91.5" r="20" stroke="#DADFE7" stroke-width="5"/>
+<circle cx="867.5" cy="149.5" r="20" stroke="#DADFE7" stroke-width="5"/>
+<circle cx="929.5" cy="149.5" r="20" stroke="#DADFE7" stroke-width="5"/>
+<circle cx="991.5" cy="149.5" r="20" stroke="#DADFE7" stroke-width="5"/>
+<line x1="802.5" y1="85" x2="802.5" y2="157" stroke="#00E676" stroke-width="5"/>
+<line x1="802.5" y1="455" x2="802.5" y2="579" stroke="#FF1744" stroke-width="5"/>
+<line x1="1058.5" y1="455" x2="1058.5" y2="579" stroke="#FF1744" stroke-width="5"/>
+<line x1="802.5" y1="308" x2="802.5" y2="332" stroke="#FFD600" stroke-width="5"/>
+<line x1="1058.5" y1="308" x2="1058.5" y2="332" stroke="#FFD600" stroke-width="5"/>
+<line x1="1058.5" y1="85" x2="1058.5" y2="157" stroke="#00E676" stroke-width="5"/>
+<circle cx="864.5" cy="313.5" r="20" stroke="#DADFE7" stroke-width="5"/>
+<circle cx="926.5" cy="313.5" r="20" stroke="#DADFE7" stroke-width="5"/>
+<circle cx="988.5" cy="313.5" r="20" stroke="#DADFE7" stroke-width="5"/>
+<circle cx="926.5" cy="516.5" r="20" stroke="#DADFE7" stroke-width="5"/>
+<circle cx="926.5" cy="456.5" r="20" stroke="#DADFE7" stroke-width="5"/>
+<circle cx="926.5" cy="576.5" r="20" stroke="#DADFE7" stroke-width="5"/>
+</g>
+<defs>
+<clipPath id="clip0_225_179">
+<rect width="1920" height="640" fill="white"/>
+</clipPath>
+</defs>
+</svg>

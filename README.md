@@ -1,3 +1,5 @@
+![conpats banner](/conpats_banner.svg)
+
 # `conpats`
 
 `conpats` contains several common concurrency patterns for convenient use.
