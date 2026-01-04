@@ -4,33 +4,10 @@
 
 `conpats` contains several common concurrency patterns for convenient use.
 
-<div align="center" style="display: flex; justify-content: center; gap: 16px;">
-
-<div>
-
 [![Go Reference](https://pkg.go.dev/badge/github.com/kiriyms/conpats.svg)](https://pkg.go.dev/github.com/kiriyms/conpats)
-
-</div>
-
-<div>
-
 [![Go Report Card](https://goreportcard.com/badge/github.com/kiriyms/conpats)](https://goreportcard.com/report/github.com/kiriyms/conpats)
-
-</div>
-
-<div>
-
 [![codecov](https://codecov.io/gh/kiriyms/conpats/branch/main/graph/badge.svg)](https://codecov.io/gh/kiriyms/conpats)
-
-</div>
-
-<div>
-
 [![Tag](https://img.shields.io/github/v/tag/kiriyms/conpats?style=flat-square&logo=fitbit&color=%23ff8936)](https://github.com/kiriyms/conpats/tags)
-
-</div>
-
-</div>
 
 ```sh
 go get github.com/kiriyms/conpats
