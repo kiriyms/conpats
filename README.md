@@ -40,8 +40,8 @@ go get github.com/kiriyms/conpats
 
 Every **Pool** must be created using [`pool.New(...)`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#New). To convert it use:
 
-- `.New(...).WithErrors()` to get a `pool.ErrorPool`.
-- `.New(...).WithErrors().WithContext(ctx)` to get a `pool.ContextPool`, where the `ctx` paramater specifies your parent context that needs to be passed to all your jobs.
+- [`.New(...).WithErrors()`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#Pool.WithErrors) to get a [`pool.ErrorPool`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#ErrorPool).
+- [`.New(...).WithErrors().WithContext(ctx)`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#ErrorPool.WithContext) to get a [`pool.ContextPool`](https://pkg.go.dev/github.com/kiriyms/conpats/pool#ContextPool), where the `ctx` paramater specifies your parent context that needs to be passed to all your jobs.
 
 #### [Pipeline](/pipe/README.md)
 
