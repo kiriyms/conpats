@@ -13,7 +13,7 @@ in := make(chan int)
 outs := tee.NewTee(in, 3, 0)
 ```
 
-Returned channels can be unbuffered or buffered. Specify that using the last argument in the `tee.NewTee(...)` function:
+Returned channels can be unbuffered or buffered. Specify that using the last argument in the [`tee.NewTee(...)`](https://pkg.go.dev/github.com/kiriyms/conpats/tee#NewTee) function:
 
 ```go
 in := make(chan int)
